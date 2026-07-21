@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layers, ChevronRight, ChevronDown, Image, Sparkles, MapPin, Camera, Dices } from 'lucide-react';
 
 interface SidebarLayersProps {
@@ -30,7 +30,16 @@ export default function SidebarLayers({
   selectedClasses,
   setSelectedClasses,
 }: SidebarLayersProps) {
-  const [isOpen, setIsOpen] = useState(true);
+  // No celular começa fechado por padrão para dar espaço total ao mapa!
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    // Se for desktop (tela > 768px), abre o painel por padrão
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      setIsOpen(true);
+    }
+  }, []);
+
   const [openGroups, setOpenGroups] = useState({
     raster: true,
     urbanismo: true,
@@ -49,27 +58,27 @@ export default function SidebarLayers({
   };
 
   return (
-    <aside className="absolute top-20 left-3 z-10 pointer-events-auto">
-      {/* Botão para Expandir/Recolher o Painel estilo GeoPortal */}
+    <aside className="absolute top-16 md:top-20 left-2 md:left-3 z-20 pointer-events-auto">
+      {/* Botão para Expandir o Painel */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-slate-900/90 backdrop-blur-md border border-white/15 text-white p-2.5 rounded-xl shadow-2xl flex items-center gap-2 hover:bg-slate-800 hover:border-emerald-500/50 transition-all group"
-          title="Abrir Gerenciador de Camadas"
+          className="bg-slate-900/95 backdrop-blur-md border border-white/15 text-white p-2 md:p-2.5 rounded-xl shadow-2xl flex items-center gap-1.5 hover:bg-slate-800 hover:border-emerald-500/50 transition-all group"
+          title="Gerenciador de Camadas"
         >
-          <Layers className="w-5 h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
-          <span className="text-xs font-bold tracking-wide pr-1">Camadas</span>
+          <Layers className="w-4 h-4 md:w-5 md:h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
+          <span className="text-[11px] md:text-xs font-bold tracking-wide pr-1">Camadas</span>
         </button>
       )}
 
-      {/* Painel Flutuante Lateral Estilo GeoPortal */}
+      {/* Painel Flutuante Lateral Responsivo */}
       {isOpen && (
-        <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 rounded-2xl p-3.5 shadow-2xl w-64 md:w-72 max-h-[calc(100vh-140px)] overflow-y-auto">
+        <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 rounded-2xl p-3 shadow-2xl w-60 md:w-72 max-h-[calc(100vh-140px)] overflow-y-auto">
           {/* Cabeçalho do Painel */}
-          <div className="flex items-center justify-between border-b border-slate-700/80 pb-2 mb-3">
+          <div className="flex items-center justify-between border-b border-slate-700/80 pb-2 mb-2.5">
             <div className="flex items-center gap-2">
               <Layers className="w-4 h-4 text-emerald-400" />
-              <h2 className="text-xs font-bold text-white uppercase tracking-wider">
+              <h2 className="text-[11px] md:text-xs font-bold text-white uppercase tracking-wider">
                 Gerenciador de Camadas
               </h2>
             </div>
@@ -81,7 +90,7 @@ export default function SidebarLayers({
             </button>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {/* GRUPO 1: CAMADAS RASTER / MAPA BASE */}
             <div className="border border-slate-800 rounded-xl bg-slate-950/40 p-2">
               <button
@@ -100,7 +109,7 @@ export default function SidebarLayers({
               </button>
 
               {openGroups.raster && (
-                <div className="mt-2 space-y-1.5 pl-2 text-xs">
+                <div className="mt-1.5 space-y-1.5 pl-2 text-xs">
                   <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
                     <input
                       type="radio"
@@ -109,7 +118,7 @@ export default function SidebarLayers({
                       onChange={() => setActiveBasemap('google')}
                       className="accent-emerald-500 cursor-pointer"
                     />
-                    <span>Google Satélite Híbrido (QGIS)</span>
+                    <span>Google Satélite Híbrido</span>
                   </label>
                   <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
                     <input
@@ -143,7 +152,7 @@ export default function SidebarLayers({
               </button>
 
               {openGroups.urbanismo && (
-                <div className="mt-2 space-y-2 pl-2 text-xs">
+                <div className="mt-1.5 space-y-2 pl-2 text-xs">
                   <label className="flex items-center gap-2 text-slate-200 font-semibold cursor-pointer">
                     <input
                       type="checkbox"
@@ -159,58 +168,54 @@ export default function SidebarLayers({
                     <span>Praças & Áreas Verdes</span>
                   </label>
 
-                  {/* LEGENDA DE QUALIDADE COM CAIXINHAS DE SELEÇÃO INTERATIVAS */}
-                  <div className="bg-slate-900/90 p-2.5 rounded-xl border border-slate-800 text-[11px] space-y-1.5 mt-1">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">
-                      Filtro de Qualidade das Praças:
+                  {/* LEGENDA DE QUALIDADE */}
+                  <div className="bg-slate-900/90 p-2 rounded-xl border border-slate-800 text-[11px] space-y-1.5 mt-1">
+                    <span className="text-[9px] md:text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1">
+                      Filtro de Qualidade:
                     </span>
 
-                    {/* Muito Boa */}
-                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white transition-colors">
+                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
                       <input
                         type="checkbox"
                         checked={!!selectedClasses['Muito Boa']}
                         onChange={() => handleToggleClass('Muito Boa')}
                         className="accent-emerald-500 rounded cursor-pointer"
                       />
-                      <span className="w-3 h-3 rounded-sm bg-emerald-500 inline-block border border-white/20 shrink-0"></span>
-                      <span>Muito Boa <strong className="text-slate-400 font-normal">(4/4 funções)</strong></span>
+                      <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block border border-white/20 shrink-0"></span>
+                      <span>Muito Boa <strong className="text-slate-400 font-normal">(4/4)</strong></span>
                     </label>
 
-                    {/* Boa */}
-                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white transition-colors">
+                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
                       <input
                         type="checkbox"
                         checked={!!selectedClasses['Boa']}
                         onChange={() => handleToggleClass('Boa')}
                         className="accent-lime-500 rounded cursor-pointer"
                       />
-                      <span className="w-3 h-3 rounded-sm bg-lime-500 inline-block border border-white/20 shrink-0"></span>
-                      <span>Boa <strong className="text-slate-400 font-normal">(3/4 funções)</strong></span>
+                      <span className="w-2.5 h-2.5 rounded-sm bg-lime-500 inline-block border border-white/20 shrink-0"></span>
+                      <span>Boa <strong className="text-slate-400 font-normal">(3/4)</strong></span>
                     </label>
 
-                    {/* Regular */}
-                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white transition-colors">
+                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
                       <input
                         type="checkbox"
                         checked={!!selectedClasses['Regular']}
                         onChange={() => handleToggleClass('Regular')}
                         className="accent-amber-500 rounded cursor-pointer"
                       />
-                      <span className="w-3 h-3 rounded-sm bg-amber-500 inline-block border border-white/20 shrink-0"></span>
-                      <span>Regular <strong className="text-slate-400 font-normal">(2/4 funções)</strong></span>
+                      <span className="w-2.5 h-2.5 rounded-sm bg-amber-500 inline-block border border-white/20 shrink-0"></span>
+                      <span>Regular <strong className="text-slate-400 font-normal">(2/4)</strong></span>
                     </label>
 
-                    {/* Ruim */}
-                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white transition-colors">
+                    <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
                       <input
                         type="checkbox"
                         checked={!!selectedClasses['Ruim']}
                         onChange={() => handleToggleClass('Ruim')}
                         className="accent-red-500 rounded cursor-pointer"
                       />
-                      <span className="w-3 h-3 rounded-sm bg-red-500 inline-block border border-white/20 shrink-0"></span>
-                      <span>Ruim <strong className="text-slate-400 font-normal">(1/4 ou 0)</strong></span>
+                      <span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block border border-white/20 shrink-0"></span>
+                      <span>Ruim <strong className="text-slate-400 font-normal">(1/4)</strong></span>
                     </label>
                   </div>
                 </div>
@@ -225,7 +230,7 @@ export default function SidebarLayers({
               >
                 <div className="flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Levantamento de Campo</span>
+                  <span>Levantamento em Campo</span>
                 </div>
                 {openGroups.campo ? (
                   <ChevronDown className="w-3.5 h-3.5" />
@@ -235,7 +240,7 @@ export default function SidebarLayers({
               </button>
 
               {openGroups.campo && (
-                <div className="mt-2 space-y-1.5 pl-2 text-xs">
+                <div className="mt-1.5 space-y-1.5 pl-2 text-xs">
                   <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
                     <input
                       type="checkbox"

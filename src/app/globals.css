@@ -22,6 +22,66 @@ body {
   overflow: hidden;
 }
 
+/* Atribuição do Leaflet no tema escuro da página */
+.leaflet-control-attribution {
+  background: rgba(15, 23, 42, 0.90) !important;
+  color: #94a3b8 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.10) !important;
+  border-radius: 8px 0 0 0 !important;
+  font-size: 10px !important;
+  padding: 3px 8px !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+.leaflet-control-attribution a {
+  color: #10b981 !important;
+}
+
+.leaflet-control-attribution a:hover {
+  color: #34d399 !important;
+}
+
+/* Posicionamento do controle de zoom (canto inferior direito acima da barra fixa de 36px) */
+.leaflet-bottom.leaflet-right {
+  bottom: 44px !important;
+  right: 12px !important;
+}
+
+/* Atribuição do Leaflet: sempre acima da barra fixa inferior (36px) */
+.leaflet-bottom.leaflet-left {
+  bottom: 40px !important;
+  left: 0 !important;
+}
+
+.leaflet-control-zoom {
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(12px);
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  background: rgba(15, 23, 42, 0.95) !important;
+  color: #f8fafc !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  width: 34px !important;
+  height: 34px !important;
+  line-height: 34px !important;
+  font-size: 16px !important;
+  font-weight: bold !important;
+  transition: all 0.2s ease;
+}
+
+.leaflet-control-zoom-in:hover,
+.leaflet-control-zoom-out:hover {
+  background: rgba(30, 41, 59, 0.95) !important;
+  color: #10b981 !important;
+}
+
 /* Popups do Leaflet estilo Glassmorphism Escuro */
 .leaflet-popup-content-wrapper {
   background: rgba(15, 23, 42, 0.95) !important;

@@ -54,13 +54,15 @@ export default function MapComponent({
     mouseCoordsCallbackRef.current = onMouseMoveCoords;
   }, [onMouseMoveCoords]);
 
-  // 1. Inicializar Mapa Leaflet (Uma única vez)
+  // 1. Inicializar Mapa Leaflet
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
+    const isMobile = window.innerWidth < 768;
+
     const map = L.map(mapContainerRef.current, {
       center: [-22.2238, -54.8062],
-      zoom: 14,
+      zoom: isMobile ? 13 : 14,
       zoomControl: false,
     });
 
@@ -87,7 +89,8 @@ export default function MapComponent({
     googleTileRef.current = googleHybridTile;
     osmTileRef.current = osmTile;
 
-    L.control.zoom({ position: 'topright' }).addTo(map);
+    // Posicionar o botão de Zoom no canto INFERIOR DIREITO (acima da barra inferior) para nunca colidir com botões do topo!
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     photoLayerGroupRef.current = L.layerGroup().addTo(map);
     equipLayerGroupRef.current = L.layerGroup().addTo(map);
@@ -110,7 +113,7 @@ export default function MapComponent({
     };
   }, []);
 
-  // 2. Alternar Camada Base (Google Hybrid vs OSM)
+  // 2. Alternar Camada Base
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !googleTileRef.current || !osmTileRef.current) return;
@@ -132,7 +135,7 @@ export default function MapComponent({
     }
   }, [activeBasemap]);
 
-  // 3. Renderizar Polígonos com Filtros por Busca, Tipo e Caixinhas da Legenda
+  // 3. Renderizar Polígonos das Praças
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map) return;
@@ -150,7 +153,7 @@ export default function MapComponent({
         p.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.bairro.toLowerCase().includes(searchQuery.toLowerCase());
       const matchType = selectedType === 'Todos' || p.tipo === selectedType;
-      const matchClasse = selectedClasses[p.classe] !== false; // Se a caixinha estiver desmarcada, ignora
+      const matchClasse = selectedClasses[p.classe] !== false;
       return matchSearch && matchType && matchClasse;
     });
 
@@ -158,6 +161,8 @@ export default function MapComponent({
       type: 'FeatureCollection',
       features: filteredFeatures,
     };
+
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
     const geoJsonLayer = L.geoJSON(filteredGeoJSON as any, {
       style: (feature: any) => {
@@ -175,30 +180,30 @@ export default function MapComponent({
         const p: AreaVerdeFeature['properties'] = feature.properties;
         const classeColor = COLOR_MAP[p.classe] || '#3b82f6';
 
-        // 1. TOOLTIP AO PASSSAR O MOUSE (HOVER)
-        const hoverTooltipHTML = `
-          <div class="px-2 py-1 flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color:${classeColor}"></span>
-            <div>
-              <strong class="text-white text-xs block leading-none">${p.nome}</strong>
-              <span class="text-[10px] text-slate-300">${p.bairro} • ${p.area_ha} ha • PUGS ${p.pugs}%</span>
+        if (!isMobile) {
+          const hoverTooltipHTML = `
+            <div class="px-2 py-1 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color:${classeColor}"></span>
+              <div>
+                <strong class="text-white text-xs block leading-none">${p.nome}</strong>
+                <span class="text-[10px] text-slate-300">${p.bairro} • ${p.area_ha} ha • PUGS ${p.pugs}%</span>
+              </div>
             </div>
-          </div>
-        `;
+          `;
 
-        layer.bindTooltip(hoverTooltipHTML, {
-          sticky: true,
-          direction: 'top',
-          className: 'leaflet-hover-tooltip',
-          offset: [0, -10],
-        });
+          layer.bindTooltip(hoverTooltipHTML, {
+            sticky: true,
+            direction: 'top',
+            className: 'leaflet-hover-tooltip',
+            offset: [0, -10],
+          });
+        }
 
-        // 2. POPUP COMPLETO AO CLICAR
         const popupHTML = `
-          <div class="p-2 min-w-[280px]">
+          <div class="p-2 min-w-[260px] md:min-w-[280px]">
             <div class="flex items-center justify-between gap-2 border-b border-slate-700 pb-2 mb-2">
-              <h3 class="text-base font-bold text-white leading-tight">${p.nome}</h3>
-              <span class="px-2 py-0.5 text-xs font-semibold rounded-full text-white" style="background-color: ${classeColor}">
+              <h3 class="text-sm md:text-base font-bold text-white leading-tight">${p.nome}</h3>
+              <span class="px-2 py-0.5 text-[11px] md:text-xs font-semibold rounded-full text-white shrink-0" style="background-color: ${classeColor}">
                 ${p.classe}
               </span>
             </div>
@@ -225,20 +230,27 @@ export default function MapComponent({
           </div>
         `;
 
-        layer.bindPopup(popupHTML);
+        layer.bindPopup(popupHTML, {
+          autoPan: true,
+          keepInView: true,
+        });
 
         layer.on('mouseover', (e: any) => {
-          const l = e.target;
-          l.setStyle({
-            weight: 4,
-            fillOpacity: 0.65,
-            color: '#ffffff',
-          });
-          l.bringToFront();
+          if (!isMobile) {
+            const l = e.target;
+            l.setStyle({
+              weight: 4,
+              fillOpacity: 0.65,
+              color: '#ffffff',
+            });
+            l.bringToFront();
+          }
         });
 
         layer.on('mouseout', (e: any) => {
-          geoJsonLayer.resetStyle(e.target);
+          if (!isMobile) {
+            geoJsonLayer.resetStyle(e.target);
+          }
         });
 
         layer.on('click', () => {
@@ -265,20 +277,20 @@ export default function MapComponent({
             html: `
               <div class="relative group cursor-pointer">
                 <div class="absolute -inset-1 bg-cyan-500 rounded-full blur-xs opacity-75 animate-pulse"></div>
-                <div style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; padding: 6px; border-radius: 12px; border: 2.5px solid #0f172a; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <div style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; padding: 6px; border-radius: 12px; border: 2.5px solid #0f172a; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 15px;">
                   📷
                 </div>
-                <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid #0f172a; margin: -2px auto 0 auto;"></div>
+                <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #0f172a; margin: -2px auto 0 auto;"></div>
               </div>
             `,
-            iconSize: [34, 40],
-            iconAnchor: [17, 40],
+            iconSize: [32, 38],
+            iconAnchor: [16, 38],
           });
 
           const marker = L.marker([foto.lat, foto.lng], { icon: photoIcon });
           marker.bindPopup(`
-            <div class="p-1 max-w-[240px]">
-              <img src="${foto.url}" alt="${foto.descricao}" class="w-full h-32 object-cover rounded-md mb-2 border border-slate-700 shadow-md" />
+            <div class="p-1 max-w-[220px]">
+              <img src="${foto.url}" alt="${foto.descricao}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" />
               <p class="text-xs font-semibold text-white">${foto.descricao}</p>
               <p class="text-[10px] text-slate-400">Autor: ${foto.autor} (${foto.data})</p>
             </div>
@@ -296,14 +308,14 @@ export default function MapComponent({
             html: `
               <div class="relative group cursor-pointer">
                 <div class="absolute -inset-1 bg-amber-500 rounded-full blur-xs opacity-75 animate-pulse"></div>
-                <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 6px; border-radius: 12px; border: 2.5px solid #0f172a; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7); width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-size: 16px;">
+                <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 6px; border-radius: 12px; border: 2.5px solid #0f172a; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 15px;">
                   🎠
                 </div>
-                <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 8px solid #0f172a; margin: -2px auto 0 auto;"></div>
+                <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #0f172a; margin: -2px auto 0 auto;"></div>
               </div>
             `,
-            iconSize: [34, 40],
-            iconAnchor: [17, 40],
+            iconSize: [32, 38],
+            iconAnchor: [16, 38],
           });
 
           const marker = L.marker([eq.lat, eq.lng], { icon: equipIcon });

@@ -1,6 +1,7 @@
 'use client';
 
-import { Search, Filter, BarChart3, Map as MapIcon, Info, Download } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Filter, BarChart3, Map as MapIcon, Info, Download, SlidersHorizontal, X } from 'lucide-react';
 
 interface TopSearchBarProps {
   searchQuery: string;
@@ -21,106 +22,153 @@ export default function TopSearchBar({
   setActiveTab,
   onExportGeoJSON,
 }: TopSearchBarProps) {
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
   return (
-    <header className="absolute top-3 left-3 right-3 z-30 flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-      {/* LADO ESQUERDO: Título UFGD + Barra de Pesquisa (Visível apenas na aba Mapa) */}
-      <div className="flex flex-wrap items-center gap-2 pointer-events-auto">
-        {/* Badge UFGD */}
-        <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 px-3.5 py-2 rounded-xl flex items-center gap-2.5 shadow-2xl">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-emerald-400 text-xs">
-            UFGD
+    <header className="absolute top-2 left-2 right-2 md:top-3 md:left-3 md:right-3 z-30 pointer-events-none">
+      <div className="flex items-center justify-between gap-2">
+        {/* LADO ESQUERDO: LOGO E TÍTULO COMPACTO */}
+        <div className="flex items-center gap-2 pointer-events-auto">
+          <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 px-2.5 py-1.5 md:px-3.5 md:py-2 rounded-xl flex items-center gap-2 shadow-2xl">
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-bold text-emerald-400 text-xs shrink-0">
+              UFGD
+            </div>
+            <div>
+              <h1 className="text-[11px] md:text-xs font-bold text-white tracking-wide leading-none uppercase">
+                WebGIS Áreas Verdes
+              </h1>
+              <span className="text-[9px] md:text-[10px] text-slate-400 font-medium">Dourados-MS</span>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xs font-bold text-white tracking-wide leading-none uppercase">
-              WebGIS Áreas Verdes
-            </h1>
-            <span className="text-[10px] text-slate-400 font-medium">Dourados-MS • TCC</span>
-          </div>
+
+          {/* BUSCA E FILTROS EM DESKTOP (md:flex) */}
+          {activeTab === 'mapa' && (
+            <div className="hidden md:flex items-center gap-2">
+              <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-2xl w-60">
+                <Search className="w-4 h-4 text-emerald-400 shrink-0" />
+                <input
+                  type="text"
+                  placeholder="Pesquisar nome ou bairro..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="bg-transparent text-xs text-white placeholder-slate-400 focus:outline-none w-full"
+                />
+              </div>
+
+              <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 rounded-xl px-2.5 py-1.5 flex items-center gap-1.5 shadow-2xl">
+                <Filter className="w-3.5 h-3.5 text-slate-400" />
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="bg-transparent text-xs text-slate-200 focus:outline-none cursor-pointer"
+                >
+                  <option value="Todos" className="bg-slate-900 text-white">Todos os Tipos</option>
+                  <option value="Praça" className="bg-slate-900 text-white">Praça</option>
+                  <option value="Parque" className="bg-slate-900 text-white">Parque</option>
+                  <option value="CEPER" className="bg-slate-900 text-white">CEPER</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* PESQUISA E FILTRO POR TIPO (Exibidos apenas no Mapa) */}
-        {activeTab === 'mapa' && (
-          <>
-            {/* Input de Pesquisa Flutuante */}
-            <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 rounded-xl px-3 py-1.5 flex items-center gap-2 shadow-2xl w-60 md:w-72">
-              <Search className="w-4 h-4 text-emerald-400 shrink-0" />
-              <input
-                type="text"
-                placeholder="Pesquisar por nome ou bairro..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-transparent text-xs text-white placeholder-slate-400 focus:outline-none w-full"
-              />
-            </div>
+        {/* LADO DIREITO: NAVEGAÇÃO COMPACTA */}
+        <div className="flex items-center gap-1.5 pointer-events-auto">
+          {/* Botão de Busca Mobile (Apenas no celular quando na aba Mapa) */}
+          {activeTab === 'mapa' && (
+            <button
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="md:hidden bg-slate-900/95 backdrop-blur-md border border-white/15 text-emerald-400 p-2 rounded-xl shadow-2xl"
+              title="Abrir Busca e Filtros"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+            </button>
+          )}
 
-            {/* Filtro por Tipo */}
-            <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 rounded-xl px-2.5 py-1.5 flex items-center gap-1.5 shadow-2xl">
-              <Filter className="w-3.5 h-3.5 text-slate-400" />
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="bg-transparent text-xs text-slate-200 focus:outline-none cursor-pointer"
-              >
-                <option value="Todos" className="bg-slate-900 text-white">Todos os Tipos</option>
-                <option value="Praça" className="bg-slate-900 text-white">Praça</option>
-                <option value="Parque" className="bg-slate-900 text-white">Parque</option>
-                <option value="CEPER" className="bg-slate-900 text-white">CEPER</option>
-              </select>
-            </div>
-          </>
-        )}
-      </div>
+          {/* Abas de Navegação */}
+          <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 p-1 rounded-xl flex items-center gap-1 shadow-2xl">
+            <button
+              onClick={() => setActiveTab('mapa')}
+              className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                activeTab === 'mapa'
+                  ? 'bg-emerald-500 text-slate-950 shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <MapIcon className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Mapa</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('dashboard')}
+              className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                activeTab === 'dashboard'
+                  ? 'bg-emerald-500 text-slate-950 shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Dashboard</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('sobre')}
+              className={`px-2.5 py-1 md:px-3 md:py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 transition-all ${
+                activeTab === 'sobre'
+                  ? 'bg-emerald-500 text-slate-950 shadow-md'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+              }`}
+            >
+              <Info className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Sobre</span>
+            </button>
+          </div>
 
-      {/* LADO DIREITO: Botões de NAVEGAÇÃO e EXPORTAÇÃO */}
-      <div className="flex items-center gap-2 pointer-events-auto">
-        <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 p-1 rounded-xl flex items-center gap-1 shadow-2xl">
-          <button
-            onClick={() => setActiveTab('mapa')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              activeTab === 'mapa'
-                ? 'bg-emerald-500 text-slate-950 shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-            }`}
-          >
-            <MapIcon className="w-3.5 h-3.5" />
-            Mapa
-          </button>
-          <button
-            onClick={() => setActiveTab('dashboard')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              activeTab === 'dashboard'
-                ? 'bg-emerald-500 text-slate-950 shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-            }`}
-          >
-            <BarChart3 className="w-3.5 h-3.5" />
-            Dashboard TCC
-          </button>
-          <button
-            onClick={() => setActiveTab('sobre')}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
-              activeTab === 'sobre'
-                ? 'bg-emerald-500 text-slate-950 shadow-md'
-                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
-            }`}
-          >
-            <Info className="w-3.5 h-3.5" />
-            Sobre
-          </button>
+          {/* Botão Exportar GeoJSON em Desktop */}
+          {activeTab === 'mapa' && (
+            <button
+              onClick={onExportGeoJSON}
+              className="hidden lg:flex bg-slate-900/95 backdrop-blur-md border border-white/15 text-slate-200 hover:text-emerald-400 px-3 py-2 rounded-xl text-xs font-semibold items-center gap-1.5 shadow-2xl transition-all"
+              title="Baixar GeoJSON"
+            >
+              <Download className="w-3.5 h-3.5 text-emerald-400" />
+            </button>
+          )}
         </div>
-
-        {/* Botão Exportar GeoJSON */}
-        {activeTab === 'mapa' && (
-          <button
-            onClick={onExportGeoJSON}
-            className="bg-slate-900/95 backdrop-blur-md border border-white/15 text-slate-200 hover:text-emerald-400 hover:border-emerald-500/50 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-2xl transition-all"
-            title="Baixar dados espaciais em formato GeoJSON"
-          >
-            <Download className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="hidden sm:inline">GeoJSON</span>
-          </button>
-        )}
       </div>
+
+      {/* DRAWER FLUTUANTE DE PESQUISA MOBILE */}
+      {mobileSearchOpen && activeTab === 'mapa' && (
+        <div className="mt-2 bg-slate-900/95 backdrop-blur-md border border-white/15 p-3 rounded-2xl shadow-2xl space-y-2 pointer-events-auto md:hidden">
+          <div className="flex items-center justify-between pb-1 border-b border-slate-800">
+            <span className="text-xs font-bold text-white uppercase tracking-wider">Filtros de Pesquisa</span>
+            <button onClick={() => setMobileSearchOpen(false)} className="text-slate-400 p-0.5">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <div className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 flex items-center gap-2">
+            <Search className="w-4 h-4 text-emerald-400 shrink-0" />
+            <input
+              type="text"
+              placeholder="Pesquisar por nome ou bairro..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent text-xs text-white placeholder-slate-400 focus:outline-none w-full"
+            />
+          </div>
+          <div className="flex items-center justify-between bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs">
+            <span className="text-slate-400">Tipo de Unidade:</span>
+            <select
+              value={selectedType}
+              onChange={(e) => setSelectedType(e.target.value)}
+              className="bg-transparent text-white font-semibold focus:outline-none cursor-pointer"
+            >
+              <option value="Todos" className="bg-slate-900">Todos os Tipos</option>
+              <option value="Praça" className="bg-slate-900">Praça</option>
+              <option value="Parque" className="bg-slate-900">Parque</option>
+              <option value="CEPER" className="bg-slate-900">CEPER</option>
+            </select>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
