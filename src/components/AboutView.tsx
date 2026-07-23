@@ -1,16 +1,50 @@
 'use client';
 
+import { useState } from 'react';
 import { BookOpen, GraduationCap, MapPin } from 'lucide-react';
 
 export default function AboutView() {
+  const [logoError, setLogoError] = useState(false);
+
   return (
     <div className="w-full h-full bg-slate-950 p-4 md:p-6 overflow-y-auto pt-24 md:pt-28 pb-16">
       <div className="max-w-4xl mx-auto space-y-6">
+        {/* Cartão Institucional com a Logo Oficial da UFGD */}
+        <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            {!logoError ? (
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-slate-950 border border-emerald-500/30 p-2 flex items-center justify-center shrink-0 shadow-lg">
+                <img
+                  src="/logo.png"
+                  alt="Logo UFGD"
+                  onError={() => setLogoError(true)}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            ) : (
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center font-black text-emerald-400 text-xl shrink-0 shadow-lg">
+                UFGD
+              </div>
+            )}
+            <div>
+              <h3 className="text-base md:text-lg font-bold text-white leading-tight">
+                Universidade Federal da Grande Dourados
+              </h3>
+              <p className="text-xs text-slate-400 mt-0.5">
+                FACET — Faculdade de Ciências Exatas e Tecnologia
+              </p>
+              <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-semibold border border-emerald-500/30">
+                Bacharelado em Sistemas de Informação
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Banner do TCC */}
         <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
           <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold tracking-widest uppercase">
             <GraduationCap className="w-5 h-5" />
-            Trabalho de Conclusão de Curso • Bacharelado em Sistemas de Informação
+            Trabalho de Conclusão de Curso • TCC UFGD
           </div>
 
           <h1 className="text-xl md:text-2xl font-black text-white leading-tight">
@@ -25,8 +59,8 @@ export default function AboutView() {
               <strong className="text-white">Luis Felipe Lima dos Santos</strong>
             </div>
             <div>
-              <span className="text-slate-500 font-semibold block">Orientadora:</span>
-              <strong className="text-white">Prof.ª Priscila Marques Kai</strong>
+              <span className="text-slate-500 font-semibold block">Orientador:</span>
+              <strong className="text-white">Prof.ª Rodrido Porfirio da Silva Sacchi</strong>
             </div>
             <div>
               <span className="text-slate-500 font-semibold block">Instituição:</span>

@@ -19,6 +19,9 @@ interface MapComponentProps {
   };
   onMouseMoveCoords: (lat: number, lng: number) => void;
   onSelectFeature: (feature: AreaVerdeFeature) => void;
+  targetZoomFeature?: AreaVerdeFeature | null;
+  targetZoomBairro?: string | null;
+  onClearZoomTarget?: () => void;
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -39,6 +42,9 @@ export default function MapComponent({
   visibleLayers,
   onMouseMoveCoords,
   onSelectFeature,
+  targetZoomFeature,
+  targetZoomBairro,
+  onClearZoomTarget,
 }: MapComponentProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -210,19 +216,19 @@ export default function MapComponent({
             
             <div class="text-xs text-slate-300 space-y-1 mb-3">
               <p>📍 <strong>Bairro:</strong> ${p.bairro} (${p.tipo})</p>
-              <p>📐 <strong>Área:</strong> ${p.area_m2.toLocaleString('pt-BR')} m² (${p.area_ha} ha)</p>
-              <p>🔄 <strong>Perímetro:</strong> ${p.perimetro.toLocaleString('pt-BR')} m</p>
-              <p>🌿 <strong>NDVI Médio:</strong> <span class="font-bold text-emerald-400">${p.ndvi_med.toFixed(3)}</span></p>
-              <p>💧 <strong>PUGS (% Verde):</strong> <span class="font-bold text-teal-300">${p.pugs.toFixed(1)}%</span></p>
+              <p><strong>Área:</strong> ${p.area_m2.toLocaleString('pt-BR')} m² (${p.area_ha} ha)</p>
+              <p><strong>Perímetro:</strong> ${p.perimetro.toLocaleString('pt-BR')} m</p>
+              <p><strong>NDVI Médio:</strong> <span class="font-bold text-emerald-400">${p.ndvi_med.toFixed(3)}</span></p>
+              <p><strong>PUGS (% Verde):</strong> <span class="font-bold text-teal-300">${p.pugs.toFixed(1)}%</span></p>
             </div>
 
             <div class="border-t border-slate-700 pt-2 mb-2">
               <span class="text-[11px] font-semibold text-slate-400 block mb-1">AVALIAÇÃO DAS 4 FUNÇÕES:</span>
               <div class="grid grid-cols-2 gap-1 text-[11px]">
-                <div class="${p.ecol ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">🌱 Ecológica ${p.ecol ? '✓' : '✗'}</div>
-                <div class="${p.permeab ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">💧 Permeabilidade ${p.permeab ? '✓' : '✗'}</div>
-                <div class="${p.estetica ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">🌸 Estética ${p.estetica ? '✓' : '✗'}</div>
-                <div class="${p.lazer ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">⚽ Lazer ${p.lazer ? '✓' : '✗'}</div>
+                <div class="${p.ecol ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">Ecológica ${p.ecol ? '✓' : '✗'}</div>
+                <div class="${p.permeab ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">Permeabilidade ${p.permeab ? '✓' : '✗'}</div>
+                <div class="${p.estetica ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">Estética ${p.estetica ? '✓' : '✗'}</div>
+                <div class="${p.lazer ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">Lazer ${p.lazer ? '✓' : '✗'}</div>
               </div>
             </div>
 
@@ -253,7 +259,14 @@ export default function MapComponent({
           }
         });
 
-        layer.on('click', () => {
+        (layer as any).featureId = p.id;
+
+        layer.on('click', (e: any) => {
+          if (e && e.latlng) {
+            (layer as any).openPopup(e.latlng);
+          } else {
+            (layer as any).openPopup();
+          }
           onSelectFeature(feature);
         });
       },
@@ -261,6 +274,41 @@ export default function MapComponent({
 
     geoJsonLayerRef.current = geoJsonLayer;
   }, [geoJsonData, selectedType, selectedClasses, searchQuery, visibleLayers.pracas, onSelectFeature]);
+
+  // Efeito para dar ZOOM Suave e abrir POPUP na geometria ou bairro selecionado no filtro
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+
+    if (targetZoomFeature) {
+      const bounds = L.geoJSON(targetZoomFeature as any).getBounds();
+      if (bounds.isValid()) {
+        map.flyToBounds(bounds, { maxZoom: 17, padding: [60, 60], duration: 1.4 });
+
+        setTimeout(() => {
+          if (geoJsonLayerRef.current) {
+            geoJsonLayerRef.current.eachLayer((layer: any) => {
+              if (layer.featureId === targetZoomFeature.properties.id) {
+                layer.openPopup();
+              }
+            });
+          }
+        }, 500);
+      }
+      if (onClearZoomTarget) onClearZoomTarget();
+    } else if (targetZoomBairro) {
+      const bairroFeatures = geoJsonData.features.filter(
+        (f) => f.properties.bairro.toLowerCase() === targetZoomBairro.toLowerCase()
+      );
+      if (bairroFeatures.length > 0) {
+        const bounds = L.geoJSON({ type: 'FeatureCollection', features: bairroFeatures } as any).getBounds();
+        if (bounds.isValid()) {
+          map.flyToBounds(bounds, { padding: [50, 50], duration: 1.4 });
+        }
+      }
+      if (onClearZoomTarget) onClearZoomTarget();
+    }
+  }, [targetZoomFeature, targetZoomBairro, geoJsonData, onClearZoomTarget]);
 
   // 4. Renderizar Marcadores de Fotografias e Equipamentos
   useEffect(() => {

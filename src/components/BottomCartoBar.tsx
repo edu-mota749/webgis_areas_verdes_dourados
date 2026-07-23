@@ -9,11 +9,11 @@ interface BottomCartoBarProps {
 
 export default function BottomCartoBar({ coords, totalFeaturesCount }: BottomCartoBarProps) {
   return (
-    /* Barra fixa no rodapé com altura constante de 36px */
+    /* Barra fixa no rodapé com z-30 e altura adaptativa para mobile */
     <footer
       id="bottom-carto-bar"
-      className="absolute bottom-0 left-0 right-0 z-10 h-9 flex items-center justify-between px-3
-                 bg-slate-900/95 backdrop-blur-md border-t border-white/10"
+      className="absolute bottom-0 left-0 right-0 z-30 h-10 md:h-9 flex items-center justify-between px-3 pb-[env(safe-area-inset-bottom)]
+                 bg-slate-900/95 backdrop-blur-md border-t border-white/15 shadow-2xl pointer-events-auto"
     >
       {/* LADO ESQUERDO: Contador + Coordenadas em linha */}
       <div className="flex items-center gap-3 text-[11px]">

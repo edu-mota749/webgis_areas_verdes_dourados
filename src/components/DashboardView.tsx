@@ -105,18 +105,19 @@ export default function DashboardView({ stats }: DashboardViewProps) {
             <p className="text-xs text-slate-400 mb-4">
               Classificação baseada no somatório das 4 funções urbanísticas
             </p>
-            <div className="h-64 w-full">
+            <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <PieChart margin={{ top: 25, right: 20, bottom: 10, left: 20 }}>
                   <Pie
                     data={pieData}
                     cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={90}
+                    cy="46%"
+                    innerRadius={42}
+                    outerRadius={70}
                     paddingAngle={5}
                     dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
                   >
                     {pieData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
@@ -126,7 +127,12 @@ export default function DashboardView({ stats }: DashboardViewProps) {
                     contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
                     itemStyle={{ color: '#f8fafc' }}
                   />
-                  <Legend />
+                  <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    iconSize={10}
+                    wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
+                  />
                 </PieChart>
               </ResponsiveContainer>
             </div>

@@ -54,6 +54,33 @@ export default function WebGISPage() {
     equipamentos: true,
   });
 
+  // Estado de abertura do painel de camadas (Desktop inicia aberto)
+  const [isLayersOpen, setIsLayersOpen] = useState(false);
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+      setIsLayersOpen(true);
+    }
+  }, []);
+
+  // Estado para dar ZOOM na geometria ou bairro selecionado
+  const [targetZoomFeature, setTargetZoomFeature] = useState<AreaVerdeFeature | null>(null);
+  const [targetZoomBairro, setTargetZoomBairro] = useState<string | null>(null);
+
+  const handleSelectSuggestion = (feature?: AreaVerdeFeature, bairroName?: string) => {
+    if (feature) {
+      setTargetZoomFeature(feature);
+      setTargetZoomBairro(null);
+    } else if (bairroName) {
+      setTargetZoomBairro(bairroName);
+      setTargetZoomFeature(null);
+    }
+  };
+
+  const handleClearZoomTarget = useCallback(() => {
+    setTargetZoomFeature(null);
+    setTargetZoomBairro(null);
+  }, []);
+
   const handleMouseMoveCoords = useCallback((lat: number, lng: number) => {
     setMouseCoords({ lat, lng });
   }, []);
@@ -92,7 +119,7 @@ export default function WebGISPage() {
 
   return (
     <main className="w-screen h-screen relative overflow-hidden bg-slate-950 font-sans">
-      {/* BARRA SUPERIOR DE PESQUISA E NAVEGAÇÃO FLUTUANTE */}
+      {/* BARRA SUPERIOR DE PESQUISA E NAVEGAÇÃO FLUTUANTE UNIFICADA */}
       <TopSearchBar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -101,6 +128,10 @@ export default function WebGISPage() {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         onExportGeoJSON={handleExportGeoJSON}
+        geoJsonData={geoJsonData}
+        onSelectSuggestion={handleSelectSuggestion}
+        isLayersOpen={isLayersOpen}
+        onToggleLayers={setIsLayersOpen}
       />
 
       {/* ABA 1: MAPA WEBGIS INTERATIVO */}
@@ -114,6 +145,8 @@ export default function WebGISPage() {
             setVisibleLayers={setVisibleLayers}
             selectedClasses={selectedClasses}
             setSelectedClasses={setSelectedClasses}
+            isOpen={isLayersOpen}
+            setIsOpen={setIsLayersOpen}
           />
 
           {/* COMPONENTE DO MAPA LEAFLET */}
@@ -128,6 +161,9 @@ export default function WebGISPage() {
             visibleLayers={visibleLayers}
             onMouseMoveCoords={handleMouseMoveCoords}
             onSelectFeature={(feature) => console.log('Praça selecionada:', feature.properties.nome)}
+            targetZoomFeature={targetZoomFeature}
+            targetZoomBairro={targetZoomBairro}
+            onClearZoomTarget={handleClearZoomTarget}
           />
 
           {/* BARRA INFERIOR CARTOGRÁFICA */}

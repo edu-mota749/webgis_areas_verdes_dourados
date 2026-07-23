@@ -20,6 +20,8 @@ interface SidebarLayersProps {
   >;
   selectedClasses: Record<string, boolean>;
   setSelectedClasses: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  isOpen?: boolean;
+  setIsOpen?: (open: boolean) => void;
 }
 
 export default function SidebarLayers({
@@ -29,16 +31,25 @@ export default function SidebarLayers({
   setVisibleLayers,
   selectedClasses,
   setSelectedClasses,
+  isOpen: controlledIsOpen,
+  setIsOpen: controlledSetIsOpen,
 }: SidebarLayersProps) {
-  // No celular começa fechado por padrão para dar espaço total ao mapa!
-  const [isOpen, setIsOpen] = useState(false);
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+
+  const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
+  const setIsOpen = (val: boolean) => {
+    if (controlledSetIsOpen) {
+      controlledSetIsOpen(val);
+    } else {
+      setInternalIsOpen(val);
+    }
+  };
 
   useEffect(() => {
-    // Se for desktop (tela > 768px), abre o painel por padrão
-    if (typeof window !== 'undefined' && window.innerWidth >= 768) {
-      setIsOpen(true);
+    if (controlledIsOpen === undefined && typeof window !== 'undefined' && window.innerWidth >= 768) {
+      setInternalIsOpen(true);
     }
-  }, []);
+  }, [controlledIsOpen]);
 
   const [openGroups, setOpenGroups] = useState({
     raster: true,
@@ -58,19 +69,7 @@ export default function SidebarLayers({
   };
 
   return (
-    <aside className="absolute top-16 md:top-20 left-2 md:left-3 z-20 pointer-events-auto">
-      {/* Botão para Expandir o Painel */}
-      {!isOpen && (
-        <button
-          onClick={() => setIsOpen(true)}
-          className="bg-slate-900/95 backdrop-blur-md border border-white/15 text-white p-2 md:p-2.5 rounded-xl shadow-2xl flex items-center gap-1.5 hover:bg-slate-800 hover:border-emerald-500/50 transition-all group"
-          title="Gerenciador de Camadas"
-        >
-          <Layers className="w-4 h-4 md:w-5 md:h-5 text-emerald-400 group-hover:scale-110 transition-transform" />
-          <span className="text-[11px] md:text-xs font-bold tracking-wide pr-1">Camadas</span>
-        </button>
-      )}
-
+    <aside className="absolute top-14 md:top-16 left-2 md:left-3 z-20 pointer-events-auto">
       {/* Painel Flutuante Lateral Responsivo */}
       {isOpen && (
         <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 rounded-2xl p-3 shadow-2xl w-60 md:w-72 max-h-[calc(100vh-140px)] overflow-y-auto">
