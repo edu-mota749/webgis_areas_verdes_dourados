@@ -109,9 +109,9 @@ export default function TopSearchBar({
     <header className="absolute top-2 left-2 right-2 md:top-3 md:left-3 md:right-3 z-30 pointer-events-none">
       <div className="flex items-center justify-between gap-2">
         {/* LADO ESQUERDO: BARRA DE CONTROLE UNIFICADA */}
-        <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 p-1.5 md:p-2 rounded-2xl flex items-center gap-2 md:gap-3 shadow-2xl pointer-events-auto">
+        <div className="bg-slate-900/95 backdrop-blur-md border border-white/15 p-1 sm:p-1.5 md:p-2 rounded-2xl flex items-center gap-1.5 md:gap-3 shadow-2xl pointer-events-auto min-w-0 max-w-[calc(100%-120px)] xs:max-w-none">
           {/* 1. BRAND LOGO + TÍTULO */}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 md:gap-2 shrink-0 min-w-0">
             {!logoError ? (
               <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl overflow-hidden border border-emerald-500/40 shrink-0 bg-slate-950/90 flex items-center justify-center p-0.5 shadow-md">
                 <img
@@ -126,11 +126,11 @@ export default function TopSearchBar({
                 UFGD
               </div>
             )}
-            <div className="leading-tight">
-              <h1 className="text-[11px] md:text-xs font-bold text-white tracking-wide uppercase leading-none">
-                WebGIS Áreas Verdes
+            <div className="leading-tight min-w-0">
+              <h1 className="text-[10px] sm:text-[11px] md:text-xs font-bold text-white tracking-wide uppercase leading-none truncate">
+                WebGIS <span className="hidden xs:inline">Áreas Verdes</span>
               </h1>
-              <span className="text-[9px] md:text-[10px] text-slate-400 font-medium">Dourados-MS</span>
+              <span className="hidden sm:block text-[9px] md:text-[10px] text-slate-400 font-medium">Dourados-MS</span>
             </div>
           </div>
 
@@ -140,15 +140,15 @@ export default function TopSearchBar({
               <div className="w-px h-5 md:h-6 bg-slate-800 shrink-0" />
               <button
                 onClick={() => onToggleLayers && onToggleLayers(!isLayersOpen)}
-                className={`px-2 py-1 md:px-2.5 md:py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shrink-0 ${
+                className={`px-1.5 py-1 md:px-2.5 md:py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 md:gap-1.5 transition-all shrink-0 ${
                   isLayersOpen
                     ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
                     : 'text-slate-300 hover:text-white hover:bg-slate-800/80 border border-transparent'
                 }`}
                 title="Gerenciador de Camadas"
               >
-                <Layers className="w-3.5 h-3.5 text-emerald-400" />
-                <span className="text-[11px] md:text-xs">Camadas</span>
+                <Layers className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                <span className="text-[11px] md:text-xs hidden min-[360px]:inline">Camadas</span>
               </button>
             </>
           )}
@@ -208,8 +208,13 @@ export default function TopSearchBar({
                   {suggestions.map((item, idx) => (
                     <button
                       key={idx}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleSelectSuggestion(item);
+                      }}
                       onClick={() => handleSelectSuggestion(item)}
-                      className="w-full px-3 py-2 text-left hover:bg-emerald-500/10 transition-colors flex items-center justify-between gap-2"
+                      className="w-full px-3 py-2 text-left hover:bg-emerald-500/10 transition-colors flex items-center justify-between gap-2 cursor-pointer"
                     >
                       <div className="truncate">
                         <div className="text-xs font-semibold text-white truncate">{item.text}</div>
@@ -345,8 +350,17 @@ export default function TopSearchBar({
                 {suggestions.map((item, idx) => (
                   <button
                     key={idx}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSelectSuggestion(item);
+                    }}
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      handleSelectSuggestion(item);
+                    }}
                     onClick={() => handleSelectSuggestion(item)}
-                    className="w-full px-3 py-2 text-left hover:bg-slate-800/80 transition-colors flex items-center justify-between gap-2"
+                    className="w-full px-3 py-2 text-left hover:bg-slate-800/80 transition-colors flex items-center justify-between gap-2 cursor-pointer active:bg-emerald-500/20"
                   >
                     <div className="truncate">
                       <div className="text-xs font-semibold text-white truncate">{item.text}</div>

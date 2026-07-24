@@ -12,7 +12,7 @@ export default function BottomCartoBar({ coords, totalFeaturesCount }: BottomCar
     /* Barra fixa no rodapé com z-30 e altura adaptativa para mobile */
     <footer
       id="bottom-carto-bar"
-      className="absolute bottom-0 left-0 right-0 z-30 h-10 md:h-9 flex items-center justify-between px-3 pb-[env(safe-area-inset-bottom)]
+      className="absolute bottom-0 left-0 right-0 z-30 min-h-[36px] md:h-9 flex items-center justify-between px-3 py-1 pb-[calc(4px+env(safe-area-inset-bottom,0px))]
                  bg-slate-900/95 backdrop-blur-md border-t border-white/15 shadow-2xl pointer-events-auto"
     >
       {/* LADO ESQUERDO: Contador + Coordenadas em linha */}

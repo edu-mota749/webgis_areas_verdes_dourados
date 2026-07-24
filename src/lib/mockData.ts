@@ -34,7 +34,8 @@ export const MOCK_AREAS_VERDES: AreaVerdeGeoJSON = {
         lazer: 1,
         total_func: 4,
         classe: 'Muito Boa',
-        observacao: 'Praça central principal com concha acústica, alta densidade arbórea e fonte iluminada.'
+        observacao: 'Praça central principal com concha acústica, alta densidade arbórea e fonte iluminada.',
+        foto_url: 'https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=800'
       }
     },
     {
@@ -1607,7 +1608,8 @@ export const MOCK_AREAS_VERDES: AreaVerdeGeoJSON = {
         lazer: 1,
         total_func: 1,
         classe: 'Muito Boa',
-        observacao: 'Parque urbano extenso com lago artificial, pista de caminhada e intensa área de preservação.'
+        observacao: 'Parque urbano extenso com lago artificial, pista de caminhada e intensa área de preservação.',
+        foto_url: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800'
       }
     },
     {
@@ -1675,7 +1677,7 @@ export const MOCK_AREAS_VERDES: AreaVerdeGeoJSON = {
         lazer: 1,
         total_func: 2,
         classe: 'Regular',
-        observacao: 'Centro Poliesportivo e Recreativo com quadras e campo, porém permeabilidade do solo abaixo de 70%.'
+        observacao: 'Centro Poliesportivo e Recreativo com quadras cobertas, academia e grande circulação.'
       }
     },
     {
@@ -1749,10 +1751,10 @@ export const MOCK_FOTOGRAFIAS: Fotografia[] = [
 ];
 
 export const MOCK_EQUIPAMENTOS: Equipamento[] = [
-  { id: 1, id_area: 1, tipo: 'Concha Acústica', estado: 'Bom', observacao: 'Palco para eventos culturais', lat: -22.2237, lng: -54.8061 },
-  { id: 2, id_area: 1, tipo: 'Academia da Terceira Idade', estado: 'Bom', observacao: 'Aparelhos novos', lat: -22.2241, lng: -54.8065 },
-  { id: 3, id_area: 2, tipo: 'Pista de Caminhada', estado: 'Bom', observacao: 'Pista de 2.2km contornando o lago', lat: -22.2280, lng: -54.8340 },
-  { id: 4, id_area: 2, tipo: 'Playground Infantil', estado: 'Regular', observacao: 'Mobiliário em madeira', lat: -22.2295, lng: -54.8355 }
+  { id: 1, id_area: 1, tipo: 'Concha Acústica', estado: 'Bom', observacao: 'Palco para eventos culturais', url: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=800', lat: -22.2237, lng: -54.8061 },
+  { id: 2, id_area: 1, tipo: 'Academia da Terceira Idade', estado: 'Bom', observacao: 'Aparelhos novos', url: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800', lat: -22.2241, lng: -54.8065 },
+  { id: 3, id_area: 2, tipo: 'Pista de Caminhada', estado: 'Bom', observacao: 'Pista de 2.2km contornando o lago', url: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800', lat: -22.2280, lng: -54.8340 },
+  { id: 4, id_area: 2, tipo: 'Playground Infantil', estado: 'Regular', observacao: 'Mobiliário em madeira', url: 'https://images.unsplash.com/photo-1562774053-701939374585?w=800', lat: -22.2295, lng: -54.8355 }
 ];
 
 export const MOCK_DASHBOARD_STATS: DashboardStats = {

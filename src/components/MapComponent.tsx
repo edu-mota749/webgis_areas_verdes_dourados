@@ -207,6 +207,7 @@ export default function MapComponent({
 
         const popupHTML = `
           <div class="p-2 min-w-[260px] md:min-w-[280px]">
+            ${p.foto_url ? `<img src="${p.foto_url}" alt="${p.nome}" class="w-full h-32 md:h-36 object-cover rounded-xl mb-2 border border-slate-700 shadow-md" />` : ''}
             <div class="flex items-center justify-between gap-2 border-b border-slate-700 pb-2 mb-2">
               <h3 class="text-sm md:text-base font-bold text-white leading-tight">${p.nome}</h3>
               <span class="px-2 py-0.5 text-[11px] md:text-xs font-semibold rounded-full text-white shrink-0" style="background-color: ${classeColor}">
@@ -238,6 +239,8 @@ export default function MapComponent({
 
         layer.bindPopup(popupHTML, {
           autoPan: true,
+          autoPanPaddingTopLeft: L.point(15, 75),
+          autoPanPaddingBottomRight: L.point(15, 55),
           keepInView: true,
         });
 
@@ -281,19 +284,25 @@ export default function MapComponent({
     if (!map) return;
 
     if (targetZoomFeature) {
+      const targetFeatureId = targetZoomFeature.properties.id;
       const bounds = L.geoJSON(targetZoomFeature as any).getBounds();
       if (bounds.isValid()) {
-        map.flyToBounds(bounds, { maxZoom: 17, padding: [60, 60], duration: 1.4 });
+        // Garantir dimensões atualizadas antes da animação de voo (especialmente no mobile)
+        map.invalidateSize();
+        map.flyToBounds(bounds, { maxZoom: 17, padding: [60, 60], duration: 1.0 });
 
-        setTimeout(() => {
+        // Abrir popup com precisão somente ao FINAL da animação de voo, sem interromper nem deslocar o mapa
+        const openTargetPopup = () => {
           if (geoJsonLayerRef.current) {
             geoJsonLayerRef.current.eachLayer((layer: any) => {
-              if (layer.featureId === targetZoomFeature.properties.id) {
+              if (layer.featureId === targetFeatureId) {
                 layer.openPopup();
               }
             });
           }
-        }, 500);
+        };
+
+        map.once('moveend', openTargetPopup);
       }
       if (onClearZoomTarget) onClearZoomTarget();
     } else if (targetZoomBairro) {
@@ -303,7 +312,8 @@ export default function MapComponent({
       if (bairroFeatures.length > 0) {
         const bounds = L.geoJSON({ type: 'FeatureCollection', features: bairroFeatures } as any).getBounds();
         if (bounds.isValid()) {
-          map.flyToBounds(bounds, { padding: [50, 50], duration: 1.4 });
+          map.invalidateSize();
+          map.flyToBounds(bounds, { padding: [50, 50], duration: 1.0 });
         }
       }
       if (onClearZoomTarget) onClearZoomTarget();
@@ -368,9 +378,10 @@ export default function MapComponent({
 
           const marker = L.marker([eq.lat, eq.lng], { icon: equipIcon });
           marker.bindPopup(`
-            <div class="p-1">
+            <div class="p-1 max-w-[220px]">
+              ${eq.url ? `<img src="${eq.url}" alt="${eq.tipo}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" />` : ''}
               <span class="text-xs font-bold text-amber-400 block">${eq.tipo}</span>
-              <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700">Estado: ${eq.estado}</span>
+              <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700 inline-block my-1">Estado: ${eq.estado}</span>
               ${eq.observacao ? `<p class="text-[11px] text-slate-300 mt-1">${eq.observacao}</p>` : ''}
             </div>
           `);

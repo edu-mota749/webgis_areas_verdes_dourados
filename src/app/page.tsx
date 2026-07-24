@@ -118,7 +118,7 @@ export default function WebGISPage() {
   };
 
   return (
-    <main className="w-screen h-screen relative overflow-hidden bg-slate-950 font-sans">
+    <main className="w-full h-full h-[100dvh] relative overflow-hidden bg-slate-950 font-sans">
       {/* BARRA SUPERIOR DE PESQUISA E NAVEGAÇÃO FLUTUANTE UNIFICADA */}
       <TopSearchBar
         searchQuery={searchQuery}

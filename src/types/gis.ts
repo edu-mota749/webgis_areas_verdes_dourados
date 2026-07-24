@@ -17,6 +17,7 @@ export interface AreaVerdeProperties {
   total_func: number; // 0 a 4
   classe: QualidadeClasse;
   observacao?: string;
+  foto_url?: string;  // Imagem ilustrativa / foto de campo da praça
 }
 
 export interface AreaVerdeFeature {
@@ -51,6 +52,7 @@ export interface Equipamento {
   tipo: string;
   estado: 'Bom' | 'Regular' | 'Ruim';
   observacao?: string;
+  url?: string;      // Foto registrada do equipamento em campo
   lat?: number;
   lng?: number;
 }

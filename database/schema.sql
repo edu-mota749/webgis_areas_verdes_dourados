@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS areas_verdes (
     total_func INT DEFAULT 0,   -- Soma das quatro funções (0 a 4)
     classe VARCHAR(30),         -- Muito Boa, Boa, Regular, Ruim
     observacao TEXT,
+    foto_url TEXT,              -- URL da imagem principal da praça (Supabase Storage)
     geom GEOMETRY(Polygon, 4326), -- Polígono espacial em lat/long
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -51,6 +52,7 @@ CREATE TABLE IF NOT EXISTS equipamentos (
     tipo VARCHAR(50) NOT NULL,  -- Playground, Academia, Quadra, Pista de Caminhada, etc.
     estado VARCHAR(30),         -- Bom, Regular, Ruim
     observacao TEXT,
+    url TEXT,                   -- URL da foto do equipamento em campo (Supabase Storage)
     geom GEOMETRY(Point, 4326),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -92,7 +94,8 @@ BEGIN
             'lazer', lazer,
             'total_func', total_func,
             'classe', classe,
-            'observacao', observacao
+            'observacao', observacao,
+            'foto_url', foto_url
           )
         )
       ), '[]'::jsonb)

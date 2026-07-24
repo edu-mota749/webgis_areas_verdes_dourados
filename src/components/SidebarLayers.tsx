@@ -57,8 +57,17 @@ export default function SidebarLayers({
     campo: true,
   });
 
+  const [openSubGroups, setOpenSubGroups] = useState({
+    estetica: true,
+    lazer: true,
+  });
+
   const toggleGroup = (group: 'raster' | 'urbanismo' | 'campo') => {
     setOpenGroups((prev) => ({ ...prev, [group]: !prev[group] }));
+  };
+
+  const toggleSubGroup = (sub: 'estetica' | 'lazer') => {
+    setOpenSubGroups((prev) => ({ ...prev, [sub]: !prev[sub] }));
   };
 
   const handleToggleClass = (classe: string) => {
@@ -239,37 +248,80 @@ export default function SidebarLayers({
               </button>
 
               {openGroups.campo && (
-                <div className="mt-1.5 space-y-1.5 pl-2 text-xs">
-                  <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
-                    <input
-                      type="checkbox"
-                      checked={visibleLayers.fotografias}
-                      onChange={(e) =>
-                        setVisibleLayers((prev) => ({
-                          ...prev,
-                          fotografias: e.target.checked,
-                        }))
-                      }
-                      className="accent-emerald-500 rounded cursor-pointer"
-                    />
-                    <Camera className="w-3 h-3 text-sky-400" />
-                    <span>Fotografias Registradas</span>
-                  </label>
-                  <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
-                    <input
-                      type="checkbox"
-                      checked={visibleLayers.equipamentos}
-                      onChange={(e) =>
-                        setVisibleLayers((prev) => ({
-                          ...prev,
-                          equipamentos: e.target.checked,
-                        }))
-                      }
-                      className="accent-emerald-500 rounded cursor-pointer"
-                    />
-                    <Dices className="w-3 h-3 text-amber-400" />
-                    <span>Equipamentos Urbanos</span>
-                  </label>
+                <div className="mt-2 space-y-2 pl-2 text-xs">
+                  {/* SUB-GRUPO 1: FUNÇÃO ESTÉTICA */}
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => toggleSubGroup('estetica')}
+                      className="w-full flex items-center justify-between text-[11px] font-semibold text-sky-400 hover:text-sky-300 transition-colors"
+                    >
+                      <div className="flex items-center gap-1">
+                        {openSubGroups.estetica ? (
+                          <ChevronDown className="w-3 h-3 text-sky-400" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3 text-sky-400" />
+                        )}
+                        <span>Função Estética</span>
+                      </div>
+                    </button>
+
+                    {openSubGroups.estetica && (
+                      <div className="pl-4 pt-0.5">
+                        <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
+                          <input
+                            type="checkbox"
+                            checked={visibleLayers.fotografias}
+                            onChange={(e) =>
+                              setVisibleLayers((prev) => ({
+                                ...prev,
+                                fotografias: e.target.checked,
+                              }))
+                            }
+                            className="accent-emerald-500 rounded cursor-pointer"
+                          />
+                          <Camera className="w-3 h-3 text-sky-400 shrink-0" />
+                          <span>Fotografias</span>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* SUB-GRUPO 2: FUNÇÃO DE LAZER */}
+                  <div className="space-y-1">
+                    <button
+                      onClick={() => toggleSubGroup('lazer')}
+                      className="w-full flex items-center justify-between text-[11px] font-semibold text-amber-400 hover:text-amber-300 transition-colors"
+                    >
+                      <div className="flex items-center gap-1">
+                        {openSubGroups.lazer ? (
+                          <ChevronDown className="w-3 h-3 text-amber-400" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3 text-amber-400" />
+                        )}
+                        <span>Função de Lazer</span>
+                      </div>
+                    </button>
+
+                    {openSubGroups.lazer && (
+                      <div className="pl-4 pt-0.5">
+                        <label className="flex items-center gap-2 text-slate-300 cursor-pointer hover:text-white">
+                          <input
+                            type="checkbox"
+                            checked={visibleLayers.equipamentos}
+                            onChange={(e) =>
+                              setVisibleLayers((prev) => ({
+                                ...prev,
+                                equipamentos: e.target.checked,
+                              }))
+                            }
+                            className="accent-emerald-500 rounded cursor-pointer"
+                          />
+                          <Dices className="w-3 h-3 text-amber-400 shrink-0" />
+                          <span>Equipamentos</span>
+                        </label>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

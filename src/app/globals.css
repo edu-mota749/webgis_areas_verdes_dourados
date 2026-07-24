@@ -10,7 +10,13 @@
   --background-end-rgb: 30, 41, 59;
 }
 
+html,
 body {
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -19,7 +25,6 @@ body {
     )
     rgb(var(--background-start-rgb));
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  overflow: hidden;
 }
 
 /* Atribuição do Leaflet no tema escuro da página */
@@ -43,13 +48,13 @@ body {
   color: #34d399 !important;
 }
 
-/* Posicionamento do controle de zoom (canto inferior direito acima da barra fixa de 36px) */
+/* Posicionamento do controle de zoom (canto inferior direito acima da barra fixa) */
 .leaflet-bottom.leaflet-right {
   bottom: calc(48px + env(safe-area-inset-bottom, 0px)) !important;
   right: 12px !important;
 }
 
-/* Atribuição do Leaflet: sempre acima da barra fixa inferior (36px) */
+/* Atribuição do Leaflet: sempre acima da barra fixa inferior */
 .leaflet-bottom.leaflet-left {
   bottom: calc(44px + env(safe-area-inset-bottom, 0px)) !important;
   left: 0 !important;
@@ -94,13 +99,17 @@ body {
 }
 
 .leaflet-popup-content {
-  max-width: calc(100vw - 48px) !important;
+  max-width: calc(100vw - 32px) !important;
+  max-height: calc(100dvh - 160px) !important;
+  overflow-y: auto !important;
   box-sizing: border-box;
+  margin: 10px 12px !important;
 }
 
 .leaflet-container a.leaflet-popup-close-button {
   color: #94a3b8 !important;
   padding: 8px 10px 0 0 !important;
+  font-size: 16px !important;
 }
 
 .leaflet-container a.leaflet-popup-close-button:hover {
