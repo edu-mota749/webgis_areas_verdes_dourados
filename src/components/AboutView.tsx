@@ -60,7 +60,7 @@ export default function AboutView() {
             </div>
             <div>
               <span className="text-slate-500 font-semibold block">Orientador:</span>
-              <strong className="text-white">Prof.ª Rodrido Porfirio da Silva Sacchi</strong>
+              <strong className="text-white">Prof. Rodrigo Porfírio da Silva Sacchi</strong>
             </div>
             <div>
               <span className="text-slate-500 font-semibold block">Instituição:</span>
