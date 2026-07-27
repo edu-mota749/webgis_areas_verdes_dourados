@@ -5023,3 +5023,47 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
     }
   ]
 };
+
+export function calculateStatsFromGeoJSON(data: AreaVerdeGeoJSON): DashboardStats {
+  const features = data?.features || [];
+  const totalPracas = features.length;
+  if (totalPracas === 0) {
+    return {
+      totalPracas: 0,
+      areaTotalHa: 0,
+      ndviMedio: 0,
+      pugsMedio: 0,
+      porClasse: { muitoBoa: 0, boa: 0, regular: 0, ruim: 0 },
+      topMaiores: []
+    };
+  }
+
+  const areaTotalHa = Number(features.reduce((acc, f) => acc + (f.properties?.area_ha || 0), 0).toFixed(2));
+  const ndviMedio = Number((features.reduce((acc, f) => acc + (f.properties?.ndvi_med || 0), 0) / totalPracas).toFixed(3));
+  const pugsMedio = Number((features.reduce((acc, f) => acc + (f.properties?.pugs || 0), 0) / totalPracas).toFixed(2));
+
+  const classes = features.map(f => f.properties?.classe);
+  const porClasse = {
+    muitoBoa: classes.filter(c => c === 'Muito Boa').length,
+    boa: classes.filter(c => c === 'Boa').length,
+    regular: classes.filter(c => c === 'Regular').length,
+    ruim: classes.filter(c => c === 'Ruim').length,
+  };
+
+  const sorted = [...features].sort((a, b) => (b.properties?.area_ha || 0) - (a.properties?.area_ha || 0));
+  const topMaiores = sorted.slice(0, 5).map(f => ({
+    nome: f.properties?.nome || '',
+    bairro: f.properties?.bairro || '',
+    area_ha: f.properties?.area_ha || 0,
+    classe: f.properties?.classe || ''
+  }));
+
+  return {
+    totalPracas,
+    areaTotalHa,
+    ndviMedio,
+    pugsMedio,
+    porClasse,
+    topMaiores
+  };
+}

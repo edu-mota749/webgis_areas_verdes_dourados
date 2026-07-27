@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import TopSearchBar from '@/components/TopSearchBar';
 import SidebarLayers from '@/components/SidebarLayers';
@@ -8,7 +8,7 @@ import BottomCartoBar from '@/components/BottomCartoBar';
 import DashboardView from '@/components/DashboardView';
 import AboutView from '@/components/AboutView';
 import { AreaVerdeGeoJSON, AreaVerdeFeature, Fotografia, Equipamento, DashboardStats } from '@/types/gis';
-import { MOCK_AREAS_VERDES, MOCK_FOTOGRAFIAS, MOCK_EQUIPAMENTOS, MOCK_DASHBOARD_STATS } from '@/lib/mockData';
+import { MOCK_AREAS_VERDES, MOCK_FOTOGRAFIAS, MOCK_EQUIPAMENTOS, calculateStatsFromGeoJSON } from '@/lib/mockData';
 
 const MapComponent = dynamic(() => import('@/components/MapComponent'), {
   ssr: false,
@@ -27,7 +27,9 @@ export default function WebGISPage() {
   const [geoJsonData, setGeoJsonData] = useState<AreaVerdeGeoJSON>(MOCK_AREAS_VERDES);
   const [fotografias, setFotografias] = useState<Fotografia[]>(MOCK_FOTOGRAFIAS);
   const [equipamentos, setEquipamentos] = useState<Equipamento[]>(MOCK_EQUIPAMENTOS);
-  const [stats, setStats] = useState<DashboardStats>(MOCK_DASHBOARD_STATS);
+
+  // Cálculo 100% dinâmico do Dashboard baseado nas áreas ativas (Supabase ou GeoJSON)
+  const stats = useMemo(() => calculateStatsFromGeoJSON(geoJsonData), [geoJsonData]);
 
   // Filtros da Busca
   const [searchQuery, setSearchQuery] = useState('');
@@ -93,12 +95,6 @@ export default function WebGISPage() {
         if (resGeo.ok) {
           const data = await resGeo.json();
           setGeoJsonData(data);
-        }
-
-        const resDash = await fetch('/api/dashboard');
-        if (resDash.ok) {
-          const dashData = await resDash.json();
-          setStats(dashData);
         }
       } catch (err) {
         console.warn('Usando dados de fallback offline:', err);
