@@ -96,6 +96,18 @@ export default function WebGISPage() {
           const data = await resGeo.json();
           setGeoJsonData(data);
         }
+
+        const resFoto = await fetch('/api/fotografias');
+        if (resFoto.ok) {
+          const dataFoto = await resFoto.json();
+          setFotografias(dataFoto);
+        }
+
+        const resEquip = await fetch('/api/equipamentos');
+        if (resEquip.ok) {
+          const dataEquip = await resEquip.json();
+          setEquipamentos(dataEquip);
+        }
       } catch (err) {
         console.warn('Usando dados de fallback offline:', err);
       }

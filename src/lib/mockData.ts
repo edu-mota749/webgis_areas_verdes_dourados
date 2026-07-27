@@ -4919,16 +4919,6 @@ export const MOCK_AREAS_VERDES: AreaVerdeGeoJSON = {
 
 export const MOCK_FOTOGRAFIAS: Fotografia[] = [
   {
-    "id": 1,
-    "id_area": 1,
-    "url": "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=800",
-    "descricao": "Vista aérea da Praça Antônio João",
-    "autor": "TCC Geoprocessamento UFGD",
-    "data": "2026-03-15",
-    "lat": -22.2238,
-    "lng": -54.8062
-  },
-  {
     "id": 2,
     "id_area": 2,
     "url": "https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/geometria_pqdolago.jpeg",
@@ -4941,24 +4931,6 @@ export const MOCK_FOTOGRAFIAS: Fotografia[] = [
 ];
 
 export const MOCK_EQUIPAMENTOS: Equipamento[] = [
-  {
-    "id": 1,
-    "id_area": 1,
-    "tipo": "Concha Acústica",
-    "estado": "Bom",
-    "observacao": "Palco para eventos culturais",
-    "lat": -22.2237,
-    "lng": -54.8061
-  },
-  {
-    "id": 2,
-    "id_area": 1,
-    "tipo": "Academia da Terceira Idade",
-    "estado": "Bom",
-    "observacao": "Aparelhos novos",
-    "lat": -22.2241,
-    "lng": -54.8065
-  },
   {
     "id": 3,
     "id_area": 2,
