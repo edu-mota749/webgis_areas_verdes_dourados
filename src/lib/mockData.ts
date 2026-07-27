@@ -1691,55 +1691,6 @@ export const MOCK_AREAS_VERDES: AreaVerdeGeoJSON = {
     },
     {
       "type": "Feature",
-      "id": 3,
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [
-              -54.7995,
-              -22.215
-            ],
-            [
-              -54.7975,
-              -22.215
-            ],
-            [
-              -54.7975,
-              -22.2165
-            ],
-            [
-              -54.7995,
-              -22.2165
-            ],
-            [
-              -54.7995,
-              -22.215
-            ]
-          ]
-        ]
-      },
-      "properties": {
-        "id": 3,
-        "nome": "Praça Paraguaia",
-        "tipo": "Praça",
-        "bairro": "Jardim Itália",
-        "area_m2": 8200.0,
-        "area_ha": 0.82,
-        "perimetro": 360.0,
-        "ndvi_med": 0.51,
-        "pugs": 73.2,
-        "ecol": 1,
-        "permeab": 1,
-        "estetica": 1,
-        "lazer": 0,
-        "total_func": 3,
-        "classe": "Boa",
-        "observacao": "Praça com boa vegetação, sombreamento adequado e bancos."
-      }
-    },
-    {
-      "type": "Feature",
       "id": 4,
       "geometry": {
         "type": "Polygon",
@@ -5029,12 +4980,12 @@ export const MOCK_EQUIPAMENTOS: Equipamento[] = [
 ];
 
 export const MOCK_DASHBOARD_STATS: DashboardStats = {
-  "totalPracas": 8,
-  "areaTotalHa": 38.07,
-  "ndviMedio": 0.436,
-  "pugsMedio": 76.12,
+  "totalPracas": 7,
+  "areaTotalHa": 41.12,
+  "ndviMedio": 0.424,
+  "pugsMedio": 76.98,
   "porClasse": {
-    "muitoBoa": 5,
+    "muitoBoa": 4,
     "boa": 2,
     "regular": 1,
     "ruim": 0
@@ -5047,14 +4998,20 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
       "classe": "Muito Boa"
     },
     {
-      "nome": "Parque Ambiental Rêgo D'Água",
-      "bairro": "Jardim Água Boa",
+      "nome": "Parque Ambiental Rêgo DÁgua",
+      "bairro": "Dourados-MS",
       "area_ha": 12.01,
       "classe": "Muito Boa"
     },
     {
+      "nome": "Praça Parque Alvorada",
+      "bairro": "Parque Alvorada",
+      "area_ha": 2.02,
+      "classe": "Boa"
+    },
+    {
       "nome": "Parque dos Ipês",
-      "bairro": "Vila Tonani I",
+      "bairro": "Dourados-MS",
       "area_ha": 1.65,
       "classe": "Muito Boa"
     },
@@ -5063,12 +5020,6 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
       "bairro": "Centro",
       "area_ha": 1.32,
       "classe": "Regular"
-    },
-    {
-      "nome": "CEPER II Plano",
-      "bairro": "Vila Planalto",
-      "area_ha": 1.22,
-      "classe": "Boa"
     }
   ]
 };
