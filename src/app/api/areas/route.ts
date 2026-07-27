@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { MOCK_AREAS_VERDES } from '@/lib/mockData';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     // Tenta buscar no Supabase se configurado
