@@ -70,7 +70,10 @@ export default function MapComponent({
       center: [-22.2238, -54.8062],
       zoom: isMobile ? 13 : 14,
       zoomControl: false,
-    });
+      // tap:false desativa o handler sintético L.Map.Tap (causa double-fire no Android).
+      // O @types/leaflet não expõe essa opção, então usamos cast para any.
+      tap: false,
+    } as any);
 
     // Camada Google Hybrid (Satélite + Vias)
     const googleHybridTile = L.tileLayer(
@@ -207,7 +210,7 @@ export default function MapComponent({
 
         const popupHTML = `
           <div class="p-2 min-w-[260px] md:min-w-[280px]">
-            ${p.foto_url ? `<img src="${p.foto_url}" alt="${p.nome}" class="w-full h-32 md:h-36 object-cover rounded-xl mb-2 border border-slate-700 shadow-md" />` : ''}
+            ${p.foto_url ? `<div class="mb-2 overflow-hidden rounded-xl border border-slate-700 shadow-md bg-slate-800"><img src="${p.foto_url}" alt="${p.nome}" class="w-full h-32 md:h-36 object-cover" loading="lazy" onerror="this.parentElement.style.display='none'" /></div>` : ''}
             <div class="flex items-center justify-between gap-2 border-b border-slate-700 pb-2 mb-2">
               <h3 class="text-sm md:text-base font-bold text-white leading-tight">${p.nome}</h3>
               <span class="px-2 py-0.5 text-[11px] md:text-xs font-semibold rounded-full text-white shrink-0" style="background-color: ${classeColor}">
@@ -241,7 +244,6 @@ export default function MapComponent({
           autoPan: true,
           autoPanPaddingTopLeft: L.point(15, 75),
           autoPanPaddingBottomRight: L.point(15, 55),
-          keepInView: true,
         });
 
         layer.on('mouseover', (e: any) => {
@@ -265,12 +267,20 @@ export default function MapComponent({
         (layer as any).featureId = p.id;
 
         layer.on('click', (e: any) => {
-          if (e && e.latlng) {
-            (layer as any).openPopup(e.latlng);
+          L.DomEvent.stop(e);
+          if (isMobile) {
+            // No mobile: NÃO usa popup do Leaflet (buggy no Android).
+            // Apenas dispara onSelectFeature — o BottomSheet React cuida da exibição.
+            onSelectFeature(feature);
           } else {
-            (layer as any).openPopup();
+            // Desktop: abre popup Leaflet normalmente
+            if (e && e.latlng) {
+              (layer as any).openPopup(e.latlng);
+            } else {
+              (layer as any).openPopup();
+            }
+            onSelectFeature(feature);
           }
-          onSelectFeature(feature);
         });
       },
     }).addTo(map);

@@ -1686,7 +1686,8 @@ export const MOCK_AREAS_VERDES: AreaVerdeGeoJSON = {
         "lazer": 1,
         "total_func": 4,
         "classe": "Muito Boa",
-        "observacao": "Parque urbano extenso com lago artificial, pista de caminhada e intensa área de preservação."
+        "observacao": "Parque urbano extenso com lago artificial, pista de caminhada e intensa área de preservação.",
+        "foto_url": "https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/geometria_pqdolago.jpeg"
       }
     },
     {
@@ -4921,7 +4922,7 @@ export const MOCK_FOTOGRAFIAS: Fotografia[] = [
   {
     "id": 2,
     "id_area": 2,
-    "url": "https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/geometria_pqdolago.jpeg",
+    "url": "https://picsum.photos/seed/parque-lago-dourados/600/400",
     "descricao": "Parque Antenor Martins (Parque do Lago)",
     "autor": "TCC Geoprocessamento UFGD",
     "data": "2026-04-10",

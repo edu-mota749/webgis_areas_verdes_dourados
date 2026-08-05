@@ -7,6 +7,7 @@ import SidebarLayers from '@/components/SidebarLayers';
 import BottomCartoBar from '@/components/BottomCartoBar';
 import DashboardView from '@/components/DashboardView';
 import AboutView from '@/components/AboutView';
+import AreaVerdeBottomSheet from '@/components/AreaVerdeBottomSheet';
 import { AreaVerdeGeoJSON, AreaVerdeFeature, Fotografia, Equipamento, DashboardStats } from '@/types/gis';
 import { MOCK_AREAS_VERDES, MOCK_FOTOGRAFIAS, MOCK_EQUIPAMENTOS, calculateStatsFromGeoJSON } from '@/lib/mockData';
 
@@ -63,6 +64,9 @@ export default function WebGISPage() {
       setIsLayersOpen(true);
     }
   }, []);
+
+  // Estado para o Bottom Sheet mobile (painel de detalhes no Android/iOS)
+  const [mobileSelectedFeature, setMobileSelectedFeature] = useState<AreaVerdeFeature | null>(null);
 
   // Estado para dar ZOOM na geometria ou bairro selecionado
   const [targetZoomFeature, setTargetZoomFeature] = useState<AreaVerdeFeature | null>(null);
@@ -168,7 +172,11 @@ export default function WebGISPage() {
             activeBasemap={activeBasemap}
             visibleLayers={visibleLayers}
             onMouseMoveCoords={handleMouseMoveCoords}
-            onSelectFeature={(feature) => console.log('Praça selecionada:', feature.properties.nome)}
+            onSelectFeature={(feature) => {
+              // No mobile abre o BottomSheet React; no desktop o popup Leaflet já abre
+              const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+              if (isMobile) setMobileSelectedFeature(feature);
+            }}
             targetZoomFeature={targetZoomFeature}
             targetZoomBairro={targetZoomBairro}
             onClearZoomTarget={handleClearZoomTarget}
@@ -176,6 +184,12 @@ export default function WebGISPage() {
 
           {/* BARRA INFERIOR CARTOGRÁFICA */}
           <BottomCartoBar coords={mouseCoords} totalFeaturesCount={geoJsonData.features.length} />
+
+          {/* BOTTOM SHEET DE DETALHES — Mobile apenas (Android/iOS) */}
+          <AreaVerdeBottomSheet
+            feature={mobileSelectedFeature}
+            onClose={() => setMobileSelectedFeature(null)}
+          />
         </>
       )}
 
