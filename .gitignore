@@ -37,3 +37,6 @@ yarn-error.log*
 scratch/
 /scratch
 
+# README (criado localmente para publicar no GitHub)
+README.md
+

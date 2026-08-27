@@ -4,6 +4,17 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { AreaVerdeGeoJSON, AreaVerdeFeature, Fotografia, Equipamento } from '@/types/gis';
 
+// ─── Utilitário: formatar data BR ────────────────────────────────────────────
+function formatDate(dateStr?: string): string {
+  if (!dateStr) return '—';
+  try {
+    const [year, month, day] = dateStr.split('-');
+    return `${day}/${month}/${year}`;
+  } catch {
+    return dateStr;
+  }
+}
+
 interface MapComponentProps {
   geoJsonData: AreaVerdeGeoJSON;
   fotografias: Fotografia[];
@@ -19,6 +30,8 @@ interface MapComponentProps {
   };
   onMouseMoveCoords: (lat: number, lng: number) => void;
   onSelectFeature: (feature: AreaVerdeFeature) => void;
+  onSelectFotografia?: (foto: Fotografia) => void;
+  onSelectEquipamento?: (eq: Equipamento) => void;
   targetZoomFeature?: AreaVerdeFeature | null;
   targetZoomBairro?: string | null;
   onClearZoomTarget?: () => void;
@@ -42,6 +55,8 @@ export default function MapComponent({
   visibleLayers,
   onMouseMoveCoords,
   onSelectFeature,
+  onSelectFotografia,
+  onSelectEquipamento,
   targetZoomFeature,
   targetZoomBairro,
   onClearZoomTarget,
@@ -330,12 +345,14 @@ export default function MapComponent({
     }
   }, [targetZoomFeature, targetZoomBairro, geoJsonData, onClearZoomTarget]);
 
-  // 4. Renderizar Marcadores de Fotografias e Equipamentos
+    // 4. Renderizar Marcadores de Fotografias e Equipamentos
   useEffect(() => {
     if (!photoLayerGroupRef.current || !equipLayerGroupRef.current) return;
 
     photoLayerGroupRef.current.clearLayers();
     equipLayerGroupRef.current.clearLayers();
+
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
     if (visibleLayers.fotografias) {
       fotografias.forEach((foto) => {
@@ -355,14 +372,27 @@ export default function MapComponent({
             iconAnchor: [16, 38],
           });
 
+          const titulo = foto.tipo || 'Fotografia';
           const marker = L.marker([foto.lat, foto.lng], { icon: photoIcon });
-          marker.bindPopup(`
-            <div class="p-1 max-w-[220px]">
-              <img src="${foto.url}" alt="${foto.descricao}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" />
-              <p class="text-xs font-semibold text-white">${foto.descricao}</p>
-              <p class="text-[10px] text-slate-400">Autor: ${foto.autor} (${foto.data})</p>
-            </div>
-          `);
+
+          if (!isMobile) {
+            // Desktop: popup Leaflet enriquecido
+            marker.bindPopup(`
+              <div class="p-1 max-w-[240px]">
+                ${foto.url ? `<img src="${foto.url}" alt="${titulo}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" onerror="this.style.display='none'" />` : ''}
+                <div class="flex items-center gap-1.5 mb-1">
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(14,165,233,0.2);color:#0ea5e9;border:1px solid rgba(14,165,233,0.35)">📷 Estética</span>
+                </div>
+                <p class="text-xs font-bold text-white mb-0.5">${titulo}</p>
+                ${foto.descricao ? `<p class="text-[11px] text-slate-300 mb-1">${foto.descricao}</p>` : ''}
+                <p class="text-[10px] text-slate-400">${foto.autor ? `${foto.autor}` : ''}${foto.data ? ` · ${formatDate(foto.data)}` : ''}</p>
+              </div>
+            `);
+          } else {
+            // Mobile: toque dispara BottomSheet React
+            marker.on('click', () => { onSelectFotografia?.(foto); });
+          }
+
           photoLayerGroupRef.current?.addLayer(marker);
         }
       });
@@ -377,7 +407,7 @@ export default function MapComponent({
               <div class="relative group cursor-pointer">
                 <div class="absolute -inset-1 bg-amber-500 rounded-full blur-xs opacity-75 animate-pulse"></div>
                 <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 6px; border-radius: 12px; border: 2.5px solid #0f172a; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.7); width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 15px;">
-                  🎠
+                  🏋️
                 </div>
                 <div style="width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 7px solid #0f172a; margin: -2px auto 0 auto;"></div>
               </div>
@@ -386,20 +416,34 @@ export default function MapComponent({
             iconAnchor: [16, 38],
           });
 
+          const estadoColors: Record<string, string> = { Bom: '#10b981', Regular: '#f59e0b', Ruim: '#ef4444' };
+          const estadoCor = eq.estado ? (estadoColors[eq.estado] || '#94a3b8') : '#94a3b8';
           const marker = L.marker([eq.lat, eq.lng], { icon: equipIcon });
-          marker.bindPopup(`
-            <div class="p-1 max-w-[220px]">
-              ${eq.url ? `<img src="${eq.url}" alt="${eq.tipo}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" />` : ''}
-              <span class="text-xs font-bold text-amber-400 block">${eq.tipo}</span>
-              <span class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded border border-slate-700 inline-block my-1">Estado: ${eq.estado}</span>
-              ${eq.observacao ? `<p class="text-[11px] text-slate-300 mt-1">${eq.observacao}</p>` : ''}
-            </div>
-          `);
+
+          if (!isMobile) {
+            // Desktop: popup Leaflet enriquecido
+            marker.bindPopup(`
+              <div class="p-1 max-w-[240px]">
+                ${eq.url ? `<img src="${eq.url}" alt="${eq.tipo}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" onerror="this.style.display='none'" />` : ''}
+                <div class="flex items-center gap-1.5 mb-1">
+                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.35)">🏋️ Lazer</span>
+                  ${eq.estado ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="color:${estadoCor};background:${estadoCor}22;border:1px solid ${estadoCor}55">${eq.estado}</span>` : ''}
+                </div>
+                <p class="text-xs font-bold text-white mb-1">${eq.tipo}</p>
+                ${eq.observacao ? `<p class="text-[11px] text-slate-300 mb-1">${eq.observacao}</p>` : ''}
+                <p class="text-[10px] text-slate-400">${eq.autor ? `${eq.autor}` : ''}${eq.data ? ` · ${formatDate(eq.data)}` : ''}</p>
+              </div>
+            `);
+          } else {
+            // Mobile: toque dispara BottomSheet React
+            marker.on('click', () => { onSelectEquipamento?.(eq); });
+          }
+
           equipLayerGroupRef.current?.addLayer(marker);
         }
       });
     }
-  }, [fotografias, equipamentos, visibleLayers.fotografias, visibleLayers.equipamentos]);
+  }, [fotografias, equipamentos, visibleLayers.fotografias, visibleLayers.equipamentos, onSelectFotografia, onSelectEquipamento]);
 
   return <div ref={mapContainerRef} className="w-full h-full absolute inset-0 z-0 bg-slate-950" />;
 }

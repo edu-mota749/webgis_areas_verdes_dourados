@@ -4918,39 +4918,6 @@ export const MOCK_AREAS_VERDES: AreaVerdeGeoJSON = {
   ]
 };
 
-export const MOCK_FOTOGRAFIAS: Fotografia[] = [
-  {
-    "id": 2,
-    "id_area": 2,
-    "url": "https://picsum.photos/seed/parque-lago-dourados/600/400",
-    "descricao": "Parque Antenor Martins (Parque do Lago)",
-    "autor": "TCC Geoprocessamento UFGD",
-    "data": "2026-04-10",
-    "lat": -22.229,
-    "lng": -54.835
-  }
-];
-
-export const MOCK_EQUIPAMENTOS: Equipamento[] = [
-  {
-    "id": 3,
-    "id_area": 2,
-    "tipo": "Pista de Caminhada",
-    "estado": "Bom",
-    "observacao": "Pista de 2.2km contornando o lago",
-    "lat": -22.228,
-    "lng": -54.834
-  },
-  {
-    "id": 4,
-    "id_area": 2,
-    "tipo": "Playground Infantil",
-    "estado": "Regular",
-    "observacao": "Mobiliário em madeira",
-    "lat": -22.2295,
-    "lng": -54.8355
-  }
-];
 
 export const MOCK_DASHBOARD_STATS: DashboardStats = {
   "totalPracas": 7,
@@ -4996,6 +4963,87 @@ export const MOCK_DASHBOARD_STATS: DashboardStats = {
     }
   ]
 };
+
+// =====================================================================
+// MOCK: Fotografias (Estética)
+// =====================================================================
+export const MOCK_FOTOGRAFIAS: import('@/types/gis').Fotografia[] = [
+  {
+    id: 1,
+    id_area: 1,
+    tipo: 'Paisagismo',
+    url: 'https://placehold.co/400x300/1e3a2f/4ade80?text=Paisagismo',
+    descricao: 'Canteiros floridos na entrada principal',
+    autor: 'Pesquisador TCC',
+    data: '2025-05-10',
+    lat: -22.2282,
+    lng: -54.8109,
+  },
+  {
+    id: 2,
+    id_area: 1,
+    tipo: 'Pavimentacao da Calçada',
+    url: 'https://placehold.co/400x300/1e2a3a/60a5fa?text=Pavimentacao',
+    descricao: 'Calçada em bom estado de conservação',
+    autor: 'Pesquisador TCC',
+    data: '2025-05-10',
+    lat: -22.2285,
+    lng: -54.8104,
+  },
+  {
+    id: 3,
+    id_area: 2,
+    tipo: 'Poluicao Visual',
+    url: 'https://placehold.co/400x300/3a1e1e/f87171?text=Poluicao+Visual',
+    descricao: 'Grafite em muro lateral',
+    autor: 'Pesquisador TCC',
+    data: '2025-05-12',
+    lat: -22.2295,
+    lng: -54.8120,
+  },
+];
+
+// =====================================================================
+// MOCK: Equipamentos (Lazer)
+// =====================================================================
+export const MOCK_EQUIPAMENTOS: import('@/types/gis').Equipamento[] = [
+  {
+    id: 1,
+    id_area: 1,
+    tipo: 'Playground',
+    estado: 'Bom',
+    url: 'https://placehold.co/400x300/1e2a3a/fbbf24?text=Playground',
+    observacao: 'Equipamentos completos e bem conservados',
+    autor: 'Pesquisador TCC',
+    data: '2025-05-10',
+    lat: -22.2280,
+    lng: -54.8105,
+  },
+  {
+    id: 2,
+    id_area: 1,
+    tipo: 'Academias',
+    estado: 'Regular',
+    url: 'https://placehold.co/400x300/1e2a3a/34d399?text=Academia',
+    observacao: 'Dois aparelhos com manutenção pendente',
+    autor: 'Pesquisador TCC',
+    data: '2025-05-10',
+    lat: -22.2283,
+    lng: -54.8108,
+  },
+  {
+    id: 3,
+    id_area: 2,
+    tipo: 'Quadras Esportivas',
+    estado: 'Ruim',
+    url: 'https://placehold.co/400x300/3a1e1e/f87171?text=Quadra',
+    observacao: 'Piso danificado e sem iluminação',
+    autor: 'Pesquisador TCC',
+    data: '2025-05-12',
+    lat: -22.2290,
+    lng: -54.8115,
+  },
+];
 
 export function calculateStatsFromGeoJSON(data: AreaVerdeGeoJSON): DashboardStats {
   const features = data?.features || [];

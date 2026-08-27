@@ -33,10 +33,11 @@ CREATE TABLE IF NOT EXISTS areas_verdes (
 -- Criar índice espacial GIST para alta performance no mapa web
 CREATE INDEX IF NOT EXISTS idx_areas_verdes_geom ON areas_verdes USING GIST (geom);
 
--- 3. Tabela: Fotografias (Pontos e Links para o Supabase Storage)
+-- 3. Tabela: Fotografias / Estética (Pontos e Links para o Supabase Storage)
 CREATE TABLE IF NOT EXISTS fotografias (
     id SERIAL PRIMARY KEY,
     id_area INT REFERENCES areas_verdes(id) ON DELETE CASCADE,
+    tipo VARCHAR(50),               -- Paisagismo, Pavimentação da Calçada, Fauna Urbana, Poluição Visual, Lago, Esculturas, Outros
     url TEXT NOT NULL,
     descricao VARCHAR(255),
     autor VARCHAR(100),
@@ -45,14 +46,16 @@ CREATE TABLE IF NOT EXISTS fotografias (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 4. Tabela: Equipamentos (Pontos de Infraestrutura de Lazer/Esporte)
+-- 4. Tabela: Equipamentos / Lazer (Pontos de Infraestrutura)
 CREATE TABLE IF NOT EXISTS equipamentos (
     id SERIAL PRIMARY KEY,
     id_area INT REFERENCES areas_verdes(id) ON DELETE CASCADE,
-    tipo VARCHAR(50) NOT NULL,  -- Playground, Academia, Quadra, Pista de Caminhada, etc.
+    tipo VARCHAR(50) NOT NULL,  -- Bancos de Praça, Mesas de Convivência, Áreas de Sombra, Pistas de Caminhada, Quadras Esportivas, Pistas de Skate, Playgrounds, Academias, Outros
     estado VARCHAR(30),         -- Bom, Regular, Ruim
     observacao TEXT,
     url TEXT,                   -- URL da foto do equipamento em campo (Supabase Storage)
+    autor VARCHAR(100),         -- Responsável pelo levantamento
+    data DATE,                  -- Data do levantamento em campo
     geom GEOMETRY(Point, 4326),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

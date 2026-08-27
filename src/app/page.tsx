@@ -8,6 +8,7 @@ import BottomCartoBar from '@/components/BottomCartoBar';
 import DashboardView from '@/components/DashboardView';
 import AboutView from '@/components/AboutView';
 import AreaVerdeBottomSheet from '@/components/AreaVerdeBottomSheet';
+import PontoBottomSheet, { PontoSelecionado } from '@/components/PontoBottomSheet';
 import { AreaVerdeGeoJSON, AreaVerdeFeature, Fotografia, Equipamento, DashboardStats } from '@/types/gis';
 import { MOCK_AREAS_VERDES, MOCK_FOTOGRAFIAS, MOCK_EQUIPAMENTOS, calculateStatsFromGeoJSON } from '@/lib/mockData';
 
@@ -65,8 +66,11 @@ export default function WebGISPage() {
     }
   }, []);
 
-  // Estado para o Bottom Sheet mobile (painel de detalhes no Android/iOS)
+  // Estado para o Bottom Sheet mobile — Praças
   const [mobileSelectedFeature, setMobileSelectedFeature] = useState<AreaVerdeFeature | null>(null);
+
+  // Estado para o Bottom Sheet mobile — Pontos (Fotografias e Equipamentos)
+  const [pontoSelecionado, setPontoSelecionado] = useState<PontoSelecionado>(null);
 
   // Estado para dar ZOOM na geometria ou bairro selecionado
   const [targetZoomFeature, setTargetZoomFeature] = useState<AreaVerdeFeature | null>(null);
@@ -177,6 +181,12 @@ export default function WebGISPage() {
               const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
               if (isMobile) setMobileSelectedFeature(feature);
             }}
+            onSelectFotografia={(foto) =>
+              setPontoSelecionado({ kind: 'fotografia', data: foto })
+            }
+            onSelectEquipamento={(eq) =>
+              setPontoSelecionado({ kind: 'equipamento', data: eq })
+            }
             targetZoomFeature={targetZoomFeature}
             targetZoomBairro={targetZoomBairro}
             onClearZoomTarget={handleClearZoomTarget}
@@ -185,10 +195,16 @@ export default function WebGISPage() {
           {/* BARRA INFERIOR CARTOGRÁFICA */}
           <BottomCartoBar coords={mouseCoords} totalFeaturesCount={geoJsonData.features.length} />
 
-          {/* BOTTOM SHEET DE DETALHES — Mobile apenas (Android/iOS) */}
+          {/* BOTTOM SHEET DE DETALHES — Praças — Mobile apenas */}
           <AreaVerdeBottomSheet
             feature={mobileSelectedFeature}
             onClose={() => setMobileSelectedFeature(null)}
+          />
+
+          {/* BOTTOM SHEET DE DETALHES — Pontos (Fotos/Equipamentos) — Mobile apenas */}
+          <PontoBottomSheet
+            ponto={pontoSelecionado}
+            onClose={() => setPontoSelecionado(null)}
           />
         </>
       )}

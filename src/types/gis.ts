@@ -37,22 +37,25 @@ export interface AreaVerdeGeoJSON {
 
 export interface Fotografia {
   id: number;
-  id_area: number;
+  id_area: number | null;
+  tipo?: string;       // Paisagismo, Pavimentação da Calçada, Fauna Urbana, Poluição Visual, Lago, Esculturas, Outros
   url: string;
-  descricao: string;
-  autor: string;
-  data: string;
+  descricao?: string;
+  autor?: string;
+  data?: string;
   lat?: number;
   lng?: number;
 }
 
 export interface Equipamento {
   id: number;
-  id_area: number;
-  tipo: string;
-  estado: 'Bom' | 'Regular' | 'Ruim';
+  id_area: number | null;
+  tipo: string;          // Bancos de Praça, Mesas de Convivência, Áreas de Sombra, Pistas de Caminhada, Quadras Esportivas, Pistas de Skate, Playgrounds, Academias, Outros
+  estado?: 'Bom' | 'Regular' | 'Ruim';
   observacao?: string;
-  url?: string;      // Foto registrada do equipamento em campo
+  url?: string;          // Foto registrada do equipamento em campo
+  autor?: string;        // Responsável pelo levantamento
+  data?: string;         // Data do levantamento em campo
   lat?: number;
   lng?: number;
 }
