@@ -7,12 +7,11 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
-      // Usa a view que já extrai lat/lng do geom PostGIS
-      const { data, error } = await supabase.from('equipamentos_view').select('*');
+      const { data, error } = await supabase.rpc('get_equipamentos');
       if (!error && data) {
         return NextResponse.json(data);
       }
-      if (error) console.warn('Erro ao buscar equipamentos_view:', error.message);
+      if (error) console.warn('Erro ao chamar get_equipamentos():', error.message);
     }
   } catch (err) {
     console.warn('Erro ao buscar equipamentos no Supabase:', err);
