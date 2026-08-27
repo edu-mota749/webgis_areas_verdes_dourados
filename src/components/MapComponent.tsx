@@ -373,13 +373,14 @@ export default function MapComponent({
           });
 
           const titulo = foto.tipo || 'Fotografia';
+          const fullImgUrl = foto.url ? (foto.url.startsWith('http') ? foto.url : `https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/${foto.url.replace(/^\//, '')}`) : undefined;
           const marker = L.marker([foto.lat, foto.lng], { icon: photoIcon });
 
           if (!isMobile) {
-            // Desktop: popup Leaflet enriquecido
+            // Desktop: popup Leaflet elegante ancorado no marcador
             marker.bindPopup(`
               <div class="p-1 max-w-[240px]">
-                ${foto.url ? `<img src="${foto.url}" alt="${titulo}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" onerror="this.style.display='none'" />` : ''}
+                ${fullImgUrl ? `<img src="${fullImgUrl}" alt="${titulo}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" onerror="this.style.display='none'" />` : ''}
                 <div class="flex items-center gap-1.5 mb-1">
                   <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(14,165,233,0.2);color:#0ea5e9;border:1px solid rgba(14,165,233,0.35)">📷 Estética</span>
                 </div>
@@ -389,8 +390,10 @@ export default function MapComponent({
               </div>
             `);
           } else {
-            // Mobile: toque dispara BottomSheet React
-            marker.on('click', () => { onSelectFotografia?.(foto); });
+            // Mobile: toque dispara BottomSheet
+            marker.on('click', () => {
+              onSelectFotografia?.({ ...foto, url: fullImgUrl || foto.url });
+            });
           }
 
           photoLayerGroupRef.current?.addLayer(marker);
@@ -418,13 +421,14 @@ export default function MapComponent({
 
           const estadoColors: Record<string, string> = { Bom: '#10b981', Regular: '#f59e0b', Ruim: '#ef4444' };
           const estadoCor = eq.estado ? (estadoColors[eq.estado] || '#94a3b8') : '#94a3b8';
+          const fullImgUrl = eq.url ? (eq.url.startsWith('http') ? eq.url : `https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/${eq.url.replace(/^\//, '')}`) : undefined;
           const marker = L.marker([eq.lat, eq.lng], { icon: equipIcon });
 
           if (!isMobile) {
-            // Desktop: popup Leaflet enriquecido
+            // Desktop: popup Leaflet elegante ancorado no marcador
             marker.bindPopup(`
               <div class="p-1 max-w-[240px]">
-                ${eq.url ? `<img src="${eq.url}" alt="${eq.tipo}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" onerror="this.style.display='none'" />` : ''}
+                ${fullImgUrl ? `<img src="${fullImgUrl}" alt="${eq.tipo}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" onerror="this.style.display='none'" />` : ''}
                 <div class="flex items-center gap-1.5 mb-1">
                   <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.35)">🏋️ Lazer</span>
                   ${eq.estado ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="color:${estadoCor};background:${estadoCor}22;border:1px solid ${estadoCor}55">${eq.estado}</span>` : ''}
@@ -435,8 +439,10 @@ export default function MapComponent({
               </div>
             `);
           } else {
-            // Mobile: toque dispara BottomSheet React
-            marker.on('click', () => { onSelectEquipamento?.(eq); });
+            // Mobile: toque dispara BottomSheet
+            marker.on('click', () => {
+              onSelectEquipamento?.({ ...eq, url: fullImgUrl || eq.url });
+            });
           }
 
           equipLayerGroupRef.current?.addLayer(marker);

@@ -121,7 +121,8 @@ export default function PontoBottomSheet({ ponto, onClose }: PontoBottomSheetPro
 
   // Campos comuns derivados
   const tipo      = ponto.data.tipo   || (isFoto ? 'Fotografia' : 'Equipamento');
-  const imageUrl  = ponto.data.url;
+  const rawUrl    = ponto.data.url;
+  const imageUrl  = rawUrl ? (rawUrl.startsWith('http') ? rawUrl : `https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/${rawUrl.replace(/^\//, '')}`) : undefined;
   const autor     = ponto.data.autor;
   const dataStr   = formatDate(ponto.data.data);
 
