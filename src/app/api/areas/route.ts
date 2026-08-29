@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { MOCK_AREAS_VERDES } from '@/lib/mockData';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function GET() {
   try {
@@ -10,7 +11,11 @@ export async function GET() {
     if (process.env.NEXT_PUBLIC_SUPABASE_URL && !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder')) {
       const { data, error } = await supabase.rpc('get_areas_verdes_geojson');
       if (!error && data) {
-        return NextResponse.json(data);
+        return NextResponse.json(data, {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          },
+        });
       }
     }
   } catch (err) {

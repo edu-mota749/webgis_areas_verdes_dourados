@@ -373,7 +373,8 @@ export default function MapComponent({
           });
 
           const titulo = foto.tipo || 'Fotografia';
-          const fullImgUrl = foto.url ? (foto.url.startsWith('http') ? foto.url : `https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/${foto.url.replace(/^\//, '')}`) : undefined;
+          const cleanUrl = foto.url ? foto.url.replace('/fotos-campo/files/', '/fotos-campo/').replace(/^files\//, '') : undefined;
+          const fullImgUrl = cleanUrl ? (cleanUrl.startsWith('http') ? cleanUrl : `https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/${cleanUrl.replace(/^\//, '')}`) : undefined;
           const marker = L.marker([foto.lat, foto.lng], { icon: photoIcon });
 
           if (!isMobile) {
@@ -421,7 +422,8 @@ export default function MapComponent({
 
           const estadoColors: Record<string, string> = { Bom: '#10b981', Regular: '#f59e0b', Ruim: '#ef4444' };
           const estadoCor = eq.estado ? (estadoColors[eq.estado] || '#94a3b8') : '#94a3b8';
-          const fullImgUrl = eq.url ? (eq.url.startsWith('http') ? eq.url : `https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/${eq.url.replace(/^\//, '')}`) : undefined;
+          const cleanUrl = eq.url ? eq.url.replace('/fotos-campo/files/', '/fotos-campo/').replace(/^files\//, '') : undefined;
+          const fullImgUrl = cleanUrl ? (cleanUrl.startsWith('http') ? cleanUrl : `https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/${cleanUrl.replace(/^\//, '')}`) : undefined;
           const marker = L.marker([eq.lat, eq.lng], { icon: equipIcon });
 
           if (!isMobile) {

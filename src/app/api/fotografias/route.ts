@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { MOCK_FOTOGRAFIAS } from '@/lib/mockData';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 // Extrai lat/lng de geometrias do Supabase (GeoJSON object, GeoJSON string ou EWKB hex)
 function parseGeom(geom: any): { lat: number; lng: number } | null {
@@ -64,7 +65,11 @@ export async function GET() {
             };
           })
           .filter(Boolean);
-        return NextResponse.json(result);
+        return NextResponse.json(result, {
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          },
+        });
       }
       if (error) console.warn('Erro ao buscar fotografias:', error.message);
     }

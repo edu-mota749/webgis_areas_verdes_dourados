@@ -99,19 +99,19 @@ export default function WebGISPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const resGeo = await fetch('/api/areas');
+        const resGeo = await fetch('/api/areas', { cache: 'no-store' });
         if (resGeo.ok) {
           const data = await resGeo.json();
           setGeoJsonData(data);
         }
 
-        const resFoto = await fetch('/api/fotografias');
+        const resFoto = await fetch('/api/fotografias', { cache: 'no-store' });
         if (resFoto.ok) {
           const dataFoto = await resFoto.json();
           setFotografias(dataFoto);
         }
 
-        const resEquip = await fetch('/api/equipamentos');
+        const resEquip = await fetch('/api/equipamentos', { cache: 'no-store' });
         if (resEquip.ok) {
           const dataEquip = await resEquip.json();
           setEquipamentos(dataEquip);
