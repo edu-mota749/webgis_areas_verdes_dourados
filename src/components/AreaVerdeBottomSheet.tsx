@@ -103,33 +103,35 @@ export default function AreaVerdeBottomSheet({ feature, onClose }: AreaVerdeBott
 
   const p           = feature.properties;
   const classeColor = COLOR_MAP[p.classe] || '#3b82f6';
+  const rawUrl      = p.foto_url;
+  const cleanUrl    = rawUrl ? rawUrl.replace('/fotos-campo/files/', '/fotos-campo/').replace(/^files\//, '') : undefined;
+  const imageUrl    = cleanUrl ? (cleanUrl.startsWith('http') ? cleanUrl : `https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/${cleanUrl.replace(/^\//, '')}`) : undefined;
 
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[9999] flex items-end"
-      style={{ background: 'rgba(0,0,0,0.45)' }}
+      className="fixed inset-0 z-[9999] flex items-end md:items-center md:justify-center p-0 md:p-4 transition-opacity duration-200"
+      style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      {/* Painel deslizante */}
+      {/* Painel deslizante no mobile / Modal centralizado no desktop */}
       <div
         ref={sheetRef}
-        className="w-full rounded-t-2xl overflow-hidden"
+        className="w-full md:max-w-xl md:rounded-2xl rounded-t-2xl overflow-hidden flex flex-col"
         style={{
-          background:   'rgba(15, 23, 42, 0.97)',
-          border:       '1px solid rgba(255,255,255,0.12)',
-          borderBottom: 'none',
-          boxShadow:    '0 -20px 40px rgba(0,0,0,0.7)',
-          maxHeight:    '82dvh',
+          background:   'rgba(15, 23, 42, 0.98)',
+          border:       '1px solid rgba(255,255,255,0.15)',
+          boxShadow:    '0 25px 50px -12px rgba(0,0,0,0.85)',
+          maxHeight:    '85dvh',
           animation:    'slideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1)',
           willChange:   'transform',
         }}
       >
-        {/* Handle de arraste — toque e arraste para fechar */}
+        {/* Handle de arraste (mobile apenas) */}
         <div
           ref={handleRef}
-          className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
-          style={{ touchAction: 'none' }} // necessário para touchmove funcionar sem scroll
+          className="flex md:hidden justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
+          style={{ touchAction: 'none' }}
         >
           <div
             className="w-10 h-1.5 rounded-full"
@@ -138,77 +140,103 @@ export default function AreaVerdeBottomSheet({ feature, onClose }: AreaVerdeBott
         </div>
 
         {/* Conteúdo com scroll independente */}
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(82dvh - 32px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(85dvh - 20px)' }}>
 
-          {/* Foto da área (se disponível) */}
-          {p.foto_url && (
-            <div className="overflow-hidden" style={{ maxHeight: '180px' }}>
+          {/* Foto da área (se disponível) em Alta Resolução */}
+          {imageUrl && (
+            <div className="overflow-hidden relative bg-slate-900 group">
               <img
-                src={p.foto_url}
+                src={imageUrl}
                 alt={p.nome}
                 loading="lazy"
-                className="w-full object-cover"
-                style={{ maxHeight: '180px' }}
+                className="w-full object-cover h-52 md:h-72 transition-transform duration-300 group-hover:scale-105"
                 onError={(e) => {
                   (e.currentTarget.parentElement as HTMLElement).style.display = 'none';
                 }}
               />
+              <div
+                className="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg text-white"
+                style={{
+                  background: classeColor,
+                  boxShadow: `0 4px 14px ${classeColor}55`,
+                }}
+              >
+                <span>Qualidade {p.classe}</span>
+              </div>
+
+              <a
+                href={imageUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="absolute top-3 right-3 bg-slate-900/80 hover:bg-slate-900 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-slate-700 backdrop-blur-md flex items-center gap-1 transition-colors shadow-md"
+                title="Abrir imagem em tamanho original"
+              >
+                🔍 Ampliar Foto
+              </a>
             </div>
           )}
 
-          <div className="px-4 pt-3 pb-6">
+          <div className="p-4 md:p-6">
             {/* Header: Nome + Badge + Fechar */}
-            <div className="flex items-start justify-between gap-3 mb-3">
-              <h2 className="text-base font-bold text-white leading-tight flex-1">{p.nome}</h2>
-              <div className="flex items-center gap-2 shrink-0">
-                <span
-                  className="px-2.5 py-1 text-xs font-bold rounded-full text-white"
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div className="flex-1">
+                <div
+                  className="w-10 h-1 rounded-full mb-2"
                   style={{ background: classeColor }}
-                >
-                  {p.classe}
-                </span>
-                <button
-                  onClick={onClose}
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-colors"
-                  style={{ background: 'rgba(255,255,255,0.08)' }}
-                  aria-label="Fechar"
-                >
-                  ✕
-                </button>
+                />
+                <h2 className="text-lg md:text-xl font-extrabold text-white leading-tight">{p.nome}</h2>
+                <p className="text-xs md:text-sm text-slate-400 mt-1">📍 {p.bairro} • {p.tipo}</p>
               </div>
+
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-slate-400 hover:text-white transition-colors bg-slate-800 border border-slate-700 hover:bg-slate-700"
+                aria-label="Fechar"
+              >
+                ✕
+              </button>
             </div>
 
-            {/* Dados principais */}
-            <div className="space-y-1.5 text-sm text-slate-300 mb-4">
-              <p>📍 <strong className="text-slate-100">Bairro:</strong> {p.bairro} ({p.tipo})</p>
-              <p><strong className="text-slate-100">Área:</strong> {p.area_m2.toLocaleString('pt-BR')} m² ({p.area_ha} ha)</p>
-              <p><strong className="text-slate-100">Perímetro:</strong> {p.perimetro.toLocaleString('pt-BR')} m</p>
-              <p>
-                <strong className="text-slate-100">NDVI Médio:</strong>{' '}
-                <span className="font-bold text-emerald-400">{p.ndvi_med.toFixed(3)}</span>
-              </p>
-              <p>
-                <strong className="text-slate-100">PUGS (% Verde):</strong>{' '}
-                <span className="font-bold text-teal-300">{p.pugs.toFixed(1)}%</span>
-              </p>
+            {/* Dados principais em Grid de Métricas */}
+            <div className="grid grid-cols-2 gap-3 mb-4 text-xs md:text-sm">
+              <div className="bg-slate-950/60 border border-slate-800 p-3 rounded-xl">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">Área Mapeada</span>
+                <span className="font-bold text-white text-sm md:text-base">{p.area_m2.toLocaleString('pt-BR')} m²</span>
+                <span className="text-xs text-slate-400 block font-medium">({p.area_ha} ha)</span>
+              </div>
+
+              <div className="bg-slate-950/60 border border-slate-800 p-3 rounded-xl">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">Perímetro</span>
+                <span className="font-bold text-white text-sm md:text-base">{p.perimetro.toLocaleString('pt-BR')} m</span>
+              </div>
+
+              <div className="bg-slate-950/60 border border-slate-800 p-3 rounded-xl">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">NDVI Médio (Vigor)</span>
+                <span className="font-bold text-emerald-400 text-sm md:text-base">{p.ndvi_med.toFixed(3)}</span>
+              </div>
+
+              <div className="bg-slate-950/60 border border-slate-800 p-3 rounded-xl">
+                <span className="text-[10px] uppercase font-bold text-slate-500 block mb-0.5">PUGS (% Solo Verde)</span>
+                <span className="font-bold text-teal-300 text-sm md:text-base">{p.pugs.toFixed(1)}%</span>
+              </div>
             </div>
 
             {/* Avaliação das 4 funções */}
             <div
-              className="rounded-xl p-3 mb-3"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+              className="rounded-xl p-4 mb-4"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
-              <span className="text-xs font-semibold text-slate-400 block mb-2">AVALIAÇÃO DAS 4 FUNÇÕES</span>
-              <div className="grid grid-cols-2 gap-2">
+              <span className="text-xs font-bold text-slate-300 block mb-3 uppercase tracking-wider">AVALIAÇÃO MULTICRITÉRIO DAS 4 FUNÇÕES:</span>
+              <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: 'Ecológica',      val: p.ecol },
-                  { label: 'Permeabilidade', val: p.permeab },
-                  { label: 'Estética',       val: p.estetica },
-                  { label: 'Lazer',          val: p.lazer },
+                  { label: 'Função Ecológica (NDVI)',      val: p.ecol },
+                  { label: 'Permeabilidade Solo (≥70%)', val: p.permeab },
+                  { label: 'Função Estética (Paisagismo)', val: p.estetica },
+                  { label: 'Função de Lazer (Infra)',     val: p.lazer },
                 ].map(({ label, val }) => (
-                  <div key={label} className="flex items-center gap-1.5 text-xs">
+                  <div key={label} className="flex items-center gap-2 text-xs md:text-sm">
                     <span
-                      className="w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+                      className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                       style={{
                         background: val ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.15)',
                         color:      val ? '#10b981'              : '#ef4444',
@@ -217,7 +245,7 @@ export default function AreaVerdeBottomSheet({ feature, onClose }: AreaVerdeBott
                     >
                       {val ? '✓' : '✗'}
                     </span>
-                    <span className={val ? 'text-slate-200' : 'text-slate-500 line-through'}>
+                    <span className={val ? 'text-slate-200 font-medium' : 'text-slate-500 line-through'}>
                       {label}
                     </span>
                   </div>
@@ -227,12 +255,15 @@ export default function AreaVerdeBottomSheet({ feature, onClose }: AreaVerdeBott
 
             {/* Observação */}
             {p.observacao && (
-              <p
-                className="text-xs text-slate-400 italic rounded-lg p-3"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-              >
-                {p.observacao}
-              </p>
+              <div>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block mb-1">Observações de Campo:</span>
+                <p
+                  className="text-xs md:text-sm text-slate-300 italic rounded-xl p-3.5"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  {p.observacao}
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -247,3 +278,4 @@ export default function AreaVerdeBottomSheet({ feature, onClose }: AreaVerdeBott
     </div>
   );
 }
+

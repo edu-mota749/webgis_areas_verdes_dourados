@@ -1,4 +1,4 @@
-import { AreaVerdeGeoJSON, Fotografia, Equipamento, DashboardStats } from '@/types/gis';
+import { AreaVerdeGeoJSON, Fotografia, Equipamento, DashboardStats, QualidadeClasse } from '@/types/gis';
 
 export const MOCK_AREAS_VERDES: AreaVerdeGeoJSON = {
   "type": "FeatureCollection",
@@ -4919,50 +4919,7 @@ export const MOCK_AREAS_VERDES: AreaVerdeGeoJSON = {
 };
 
 
-export const MOCK_DASHBOARD_STATS: DashboardStats = {
-  "totalPracas": 7,
-  "areaTotalHa": 41.12,
-  "ndviMedio": 0.424,
-  "pugsMedio": 76.98,
-  "porClasse": {
-    "muitoBoa": 4,
-    "boa": 2,
-    "regular": 1,
-    "ruim": 0
-  },
-  "topMaiores": [
-    {
-      "nome": "Parque Antenor Martins",
-      "bairro": "Jardim Flórida",
-      "area_ha": 21.9,
-      "classe": "Muito Boa"
-    },
-    {
-      "nome": "Parque Ambiental Rêgo DÁgua",
-      "bairro": "Dourados-MS",
-      "area_ha": 12.01,
-      "classe": "Muito Boa"
-    },
-    {
-      "nome": "Praça Parque Alvorada",
-      "bairro": "Parque Alvorada",
-      "area_ha": 2.02,
-      "classe": "Boa"
-    },
-    {
-      "nome": "Parque dos Ipês",
-      "bairro": "Dourados-MS",
-      "area_ha": 1.65,
-      "classe": "Muito Boa"
-    },
-    {
-      "nome": "Praça Antônio João",
-      "bairro": "Centro",
-      "area_ha": 1.32,
-      "classe": "Regular"
-    }
-  ]
-};
+export const MOCK_DASHBOARD_STATS: DashboardStats = calculateStatsFromGeoJSON(MOCK_AREAS_VERDES);
 
 // =====================================================================
 // MOCK: Fotografias (Estética)
@@ -5055,7 +5012,12 @@ export function calculateStatsFromGeoJSON(data: AreaVerdeGeoJSON): DashboardStat
       ndviMedio: 0,
       pugsMedio: 0,
       porClasse: { muitoBoa: 0, boa: 0, regular: 0, ruim: 0 },
-      topMaiores: []
+      topMaiores: [],
+      funcoesAtendidas: { ecol: 0, permeab: 0, estetica: 0, lazer: 0 },
+      metricasPorClasse: [],
+      porTipo: [],
+      faixasNdvi: [],
+      conformidadePermeab: [],
     };
   }
 
@@ -5079,12 +5041,67 @@ export function calculateStatsFromGeoJSON(data: AreaVerdeGeoJSON): DashboardStat
     classe: f.properties?.classe || ''
   }));
 
+  // 1. Atendimento das 4 Funções Multicritério
+  const funcoesAtendidas = {
+    ecol: features.filter(f => f.properties?.ecol === 1).length,
+    permeab: features.filter(f => f.properties?.permeab === 1).length,
+    estetica: features.filter(f => f.properties?.estetica === 1).length,
+    lazer: features.filter(f => f.properties?.lazer === 1).length,
+  };
+
+  // 2. Métricas Médias por Classe de Qualidade
+  const ordensClasses: QualidadeClasse[] = ['Muito Boa', 'Boa', 'Regular', 'Ruim'];
+  const metricasPorClasse = ordensClasses.map((cls) => {
+    const subset = features.filter(f => f.properties?.classe === cls);
+    const count = subset.length;
+    if (count === 0) return { classe: cls, ndviMedio: 0, pugsMedio: 0 };
+    const avgNdvi = subset.reduce((acc, f) => acc + (f.properties?.ndvi_med || 0), 0) / count;
+    const avgPugs = subset.reduce((acc, f) => acc + (f.properties?.pugs || 0), 0) / count;
+    return {
+      classe: cls,
+      ndviMedio: Number(avgNdvi.toFixed(3)),
+      pugsMedio: Number(avgPugs.toFixed(1)),
+    };
+  });
+
+  // 3. Distribuição por Tipologia
+  const tiposMap: Record<string, number> = {};
+  features.forEach(f => {
+    const t = f.properties?.tipo || 'Praça';
+    tiposMap[t] = (tiposMap[t] || 0) + 1;
+  });
+  const porTipo = Object.entries(tiposMap).map(([tipo, quantidade]) => ({ tipo, quantidade }));
+
+  // 4. Faixas de NDVI
+  const baixa = features.filter(f => (f.properties?.ndvi_med || 0) < 0.20).length;
+  const moderada = features.filter(f => (f.properties?.ndvi_med || 0) >= 0.20 && (f.properties?.ndvi_med || 0) <= 0.35).length;
+  const densa = features.filter(f => (f.properties?.ndvi_med || 0) > 0.35).length;
+  const faixasNdvi = [
+    { faixa: 'Baixa (<0.20)', quantidade: baixa },
+    { faixa: 'Moderada (0.20-0.35)', quantidade: moderada },
+    { faixa: 'Densa (>0.35)', quantidade: densa },
+  ];
+
+  // 5. Conformidade da Permeabilidade (PUGS >= 70%)
+  const conforme = features.filter(f => (f.properties?.pugs || 0) >= 70).length;
+  const naoConforme = totalPracas - conforme;
+  const conformidadePermeab = [
+    { status: 'Conforme (≥70%)', quantidade: conforme },
+    { status: 'Não Conforme (<70%)', quantidade: naoConforme },
+  ];
+
   return {
     totalPracas,
     areaTotalHa,
     ndviMedio,
     pugsMedio,
     porClasse,
-    topMaiores
+    topMaiores,
+    funcoesAtendidas,
+    metricasPorClasse,
+    porTipo,
+    faixasNdvi,
+    conformidadePermeab,
   };
 }
+

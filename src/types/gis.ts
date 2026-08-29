@@ -77,4 +77,28 @@ export interface DashboardStats {
     area_ha: number;
     classe: QualidadeClasse;
   }[];
+  funcoesAtendidas: {
+    ecol: number;
+    permeab: number;
+    estetica: number;
+    lazer: number;
+  };
+  metricasPorClasse: {
+    classe: string;
+    ndviMedio: number;
+    pugsMedio: number;
+  }[];
+  porTipo: {
+    tipo: string;
+    quantidade: number;
+  }[];
+  faixasNdvi: {
+    faixa: string;
+    quantidade: number;
+  }[];
+  conformidadePermeab: {
+    status: string;
+    quantidade: number;
+  }[];
 }
+

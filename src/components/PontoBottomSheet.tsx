@@ -140,86 +140,90 @@ export default function PontoBottomSheet({ ponto, onClose }: PontoBottomSheetPro
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-[9999] flex items-end"
-      style={{ background: 'rgba(0,0,0,0.45)' }}
+      className="fixed inset-0 z-[9999] flex items-end md:items-center md:justify-center p-0 md:p-4 transition-opacity duration-200"
+      style={{ background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)' }}
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      {/* Painel deslizante */}
+      {/* Painel deslizante no mobile / Modal centralizado no desktop */}
       <div
         ref={sheetRef}
-        className="w-full rounded-t-2xl overflow-hidden"
+        className="w-full md:max-w-xl md:rounded-2xl rounded-t-2xl overflow-hidden flex flex-col"
         style={{
-          background:   'rgba(15, 23, 42, 0.97)',
-          border:       '1px solid rgba(255,255,255,0.12)',
-          borderBottom: 'none',
-          boxShadow:    '0 -20px 40px rgba(0,0,0,0.7)',
-          maxHeight:    '82dvh',
+          background:   'rgba(15, 23, 42, 0.98)',
+          border:       '1px solid rgba(255,255,255,0.15)',
+          boxShadow:    '0 25px 50px -12px rgba(0,0,0,0.85)',
+          maxHeight:    '85dvh',
           animation:    'slideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1)',
           willChange:   'transform',
         }}
       >
-        {/* Handle de arraste */}
+        {/* Handle de arraste (mobile apenas) */}
         <div
           ref={handleRef}
-          className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
+          className="flex md:hidden justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing select-none"
           style={{ touchAction: 'none' }}
         >
           <div className="w-10 h-1.5 rounded-full" style={{ background: 'rgba(148,163,184,0.5)' }} />
         </div>
 
         {/* Conteúdo com scroll */}
-        <div className="overflow-y-auto" style={{ maxHeight: 'calc(82dvh - 32px)' }}>
+        <div className="overflow-y-auto" style={{ maxHeight: 'calc(85dvh - 20px)' }}>
 
-          {/* Foto / Imagem do ponto */}
+          {/* Foto / Imagem do ponto em Alta Resolução */}
           {imageUrl && (
-            <div className="overflow-hidden relative" style={{ maxHeight: '200px' }}>
+            <div className="overflow-hidden relative bg-slate-900 group">
               <img
                 src={imageUrl}
                 alt={tipo}
                 loading="lazy"
-                className="w-full object-cover"
-                style={{ maxHeight: '200px' }}
+                className="w-full object-cover h-52 md:h-72 transition-transform duration-300 group-hover:scale-105"
                 onError={(e) => { (e.currentTarget.parentElement as HTMLElement).style.display = 'none'; }}
               />
               {/* Badge de categoria sobre a imagem */}
               <div
-                className="absolute top-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold"
+                className="absolute top-3 left-3 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold shadow-lg"
                 style={{
                   background: `rgba(15,23,42,0.85)`,
-                  border: `1px solid ${accentColor}55`,
+                  border: `1px solid ${accentColor}77`,
                   color: accentColor,
-                  backdropFilter: 'blur(6px)',
+                  backdropFilter: 'blur(8px)',
                 }}
               >
                 <span>{categoryIcon}</span>
                 <span>{categoryLabel}</span>
               </div>
+
+              <a
+                href={imageUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="absolute top-3 right-3 bg-slate-900/80 hover:bg-slate-900 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg border border-slate-700 backdrop-blur-md flex items-center gap-1 transition-colors shadow-md"
+                title="Abrir imagem em tamanho original"
+              >
+                🔍 Ampliar
+              </a>
             </div>
           )}
 
-          <div className="px-4 pt-4 pb-6">
-
+          <div className="p-4 md:p-6">
             {/* Header: Tipo (título) + botão fechar */}
             <div className="flex items-start justify-between gap-3 mb-4">
               <div className="flex-1">
-                {/* Accent line */}
                 <div
-                  className="w-8 h-1 rounded-full mb-2"
+                  className="w-10 h-1 rounded-full mb-2"
                   style={{ background: accentColor }}
                 />
-                <h2 className="text-base font-bold text-white leading-tight">
+                <h2 className="text-lg md:text-xl font-extrabold text-white leading-tight">
                   {tipo}
                 </h2>
-                {/* Descrição como subtítulo (apenas para fotografias) */}
                 {descricao && (
-                  <p className="text-xs text-slate-400 mt-0.5 leading-snug">{descricao}</p>
+                  <p className="text-xs md:text-sm text-slate-300 mt-1 leading-relaxed">{descricao}</p>
                 )}
               </div>
 
               <button
                 onClick={onClose}
-                className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-slate-400 hover:text-white transition-colors"
-                style={{ background: 'rgba(255,255,255,0.08)' }}
+                className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-slate-400 hover:text-white transition-colors bg-slate-800 border border-slate-700 hover:bg-slate-700"
                 aria-label="Fechar"
               >
                 ✕
@@ -237,28 +241,31 @@ export default function PontoBottomSheet({ ponto, onClose }: PontoBottomSheetPro
                     border:     `1px solid ${estadoStyle.border}`,
                   }}
                 >
-                  Estado: {estado}
+                  Estado de Conservação: {estado}
                 </span>
               </div>
             )}
 
             {/* Grid de metadados */}
             <div
-              className="grid grid-cols-2 gap-3 rounded-xl p-3 mb-4"
-              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+              className="grid grid-cols-2 gap-4 rounded-xl p-3.5 mb-4"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
-              {autor && <MetaChip label="Autor" value={autor} />}
-              <MetaChip label="Data" value={dataStr} />
+              {autor && <MetaChip label="Autor do Levantamento" value={autor} />}
+              <MetaChip label="Data de Registro" value={dataStr} />
             </div>
 
             {/* Observação (apenas equipamentos) */}
             {observacao && (
-              <p
-                className="text-xs text-slate-400 italic rounded-lg p-3"
-                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
-              >
-                {observacao}
-              </p>
+              <div className="mt-3">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block mb-1">Observações de Campo:</span>
+                <p
+                  className="text-xs md:text-sm text-slate-300 italic rounded-xl p-3.5"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+                >
+                  {observacao}
+                </p>
+              </div>
             )}
           </div>
         </div>
@@ -273,3 +280,4 @@ export default function PontoBottomSheet({ ponto, onClose }: PontoBottomSheetPro
     </div>
   );
 }
+

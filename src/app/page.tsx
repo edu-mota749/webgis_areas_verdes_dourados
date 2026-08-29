@@ -177,9 +177,8 @@ export default function WebGISPage() {
             visibleLayers={visibleLayers}
             onMouseMoveCoords={handleMouseMoveCoords}
             onSelectFeature={(feature) => {
-              // No mobile abre o BottomSheet React; no desktop o popup Leaflet já abre
-              const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-              if (isMobile) setMobileSelectedFeature(feature);
+              // Dispara a exibição da ficha detalhada (Bottom Sheet no Mobile / Modal Dialog no Desktop)
+              setMobileSelectedFeature(feature);
             }}
             onSelectFotografia={(foto) =>
               setPontoSelecionado({ kind: 'fotografia', data: foto })

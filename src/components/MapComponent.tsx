@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import L from 'leaflet';
 import { AreaVerdeGeoJSON, AreaVerdeFeature, Fotografia, Equipamento } from '@/types/gis';
 
@@ -223,44 +223,6 @@ export default function MapComponent({
           });
         }
 
-        const popupHTML = `
-          <div class="p-2 min-w-[260px] md:min-w-[280px]">
-            ${p.foto_url ? `<div class="mb-2 overflow-hidden rounded-xl border border-slate-700 shadow-md bg-slate-800"><img src="${p.foto_url}" alt="${p.nome}" class="w-full h-32 md:h-36 object-cover" loading="lazy" onerror="this.parentElement.style.display='none'" /></div>` : ''}
-            <div class="flex items-center justify-between gap-2 border-b border-slate-700 pb-2 mb-2">
-              <h3 class="text-sm md:text-base font-bold text-white leading-tight">${p.nome}</h3>
-              <span class="px-2 py-0.5 text-[11px] md:text-xs font-semibold rounded-full text-white shrink-0" style="background-color: ${classeColor}">
-                ${p.classe}
-              </span>
-            </div>
-            
-            <div class="text-xs text-slate-300 space-y-1 mb-3">
-              <p>📍 <strong>Bairro:</strong> ${p.bairro} (${p.tipo})</p>
-              <p><strong>Área:</strong> ${p.area_m2.toLocaleString('pt-BR')} m² (${p.area_ha} ha)</p>
-              <p><strong>Perímetro:</strong> ${p.perimetro.toLocaleString('pt-BR')} m</p>
-              <p><strong>NDVI Médio:</strong> <span class="font-bold text-emerald-400">${p.ndvi_med.toFixed(3)}</span></p>
-              <p><strong>PUGS (% Verde):</strong> <span class="font-bold text-teal-300">${p.pugs.toFixed(1)}%</span></p>
-            </div>
-
-            <div class="border-t border-slate-700 pt-2 mb-2">
-              <span class="text-[11px] font-semibold text-slate-400 block mb-1">AVALIAÇÃO DAS 4 FUNÇÕES:</span>
-              <div class="grid grid-cols-2 gap-1 text-[11px]">
-                <div class="${p.ecol ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">Ecológica ${p.ecol ? '✓' : '✗'}</div>
-                <div class="${p.permeab ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">Permeabilidade ${p.permeab ? '✓' : '✗'}</div>
-                <div class="${p.estetica ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">Estética ${p.estetica ? '✓' : '✗'}</div>
-                <div class="${p.lazer ? 'text-emerald-400 font-medium' : 'text-slate-500 line-through'}">Lazer ${p.lazer ? '✓' : '✗'}</div>
-              </div>
-            </div>
-
-            ${p.observacao ? `<p class="text-[11px] text-slate-400 italic bg-slate-800/80 p-1.5 rounded border border-slate-700">${p.observacao}</p>` : ''}
-          </div>
-        `;
-
-        layer.bindPopup(popupHTML, {
-          autoPan: true,
-          autoPanPaddingTopLeft: L.point(15, 75),
-          autoPanPaddingBottomRight: L.point(15, 55),
-        });
-
         layer.on('mouseover', (e: any) => {
           if (!isMobile) {
             const l = e.target;
@@ -283,19 +245,8 @@ export default function MapComponent({
 
         layer.on('click', (e: any) => {
           L.DomEvent.stop(e);
-          if (isMobile) {
-            // No mobile: NÃO usa popup do Leaflet (buggy no Android).
-            // Apenas dispara onSelectFeature — o BottomSheet React cuida da exibição.
-            onSelectFeature(feature);
-          } else {
-            // Desktop: abre popup Leaflet normalmente
-            if (e && e.latlng) {
-              (layer as any).openPopup(e.latlng);
-            } else {
-              (layer as any).openPopup();
-            }
-            onSelectFeature(feature);
-          }
+          // Dispara a seleção da feature para abrir a ficha (Bottom Sheet no Mobile / Modal no Desktop)
+          onSelectFeature(feature);
         });
       },
     }).addTo(map);
@@ -345,7 +296,25 @@ export default function MapComponent({
     }
   }, [targetZoomFeature, targetZoomBairro, geoJsonData, onClearZoomTarget]);
 
-    // 4. Renderizar Marcadores de Fotografias e Equipamentos
+  // Mapeia o conjunto de IDs das áreas verdes ativas após a aplicação dos filtros
+  const visibleAreaIds = useMemo(() => {
+    const ids = new Set<number>();
+    if (!visibleLayers.pracas) return ids;
+    geoJsonData.features.forEach((f) => {
+      const p = f.properties;
+      const matchSearch =
+        p.nome.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.bairro.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchType = selectedType === 'Todos' || p.tipo === selectedType;
+      const matchClasse = selectedClasses[p.classe] !== false;
+      if (matchSearch && matchType && matchClasse) {
+        ids.add(p.id);
+      }
+    });
+    return ids;
+  }, [geoJsonData, searchQuery, selectedType, selectedClasses, visibleLayers.pracas]);
+
+  // 4. Renderizar Marcadores de Fotografias e Equipamentos
   useEffect(() => {
     if (!photoLayerGroupRef.current || !equipLayerGroupRef.current) return;
 
@@ -356,6 +325,11 @@ export default function MapComponent({
 
     if (visibleLayers.fotografias) {
       fotografias.forEach((foto) => {
+        // Se o ponto está vinculado a uma praça (id_area != null), ele só aparece se a praça estiver visível
+        if (foto.id_area !== null && foto.id_area !== undefined && !visibleAreaIds.has(foto.id_area)) {
+          return;
+        }
+
         if (foto.lat && foto.lng) {
           const photoIcon = L.divIcon({
             className: 'custom-gis-photo-pin',
@@ -378,24 +352,24 @@ export default function MapComponent({
           const marker = L.marker([foto.lat, foto.lng], { icon: photoIcon });
 
           if (!isMobile) {
-            // Desktop: popup Leaflet elegante ancorado no marcador
-            marker.bindPopup(`
-              <div class="p-1 max-w-[240px]">
-                ${fullImgUrl ? `<img src="${fullImgUrl}" alt="${titulo}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" onerror="this.style.display='none'" />` : ''}
-                <div class="flex items-center gap-1.5 mb-1">
-                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(14,165,233,0.2);color:#0ea5e9;border:1px solid rgba(14,165,233,0.35)">📷 Estética</span>
-                </div>
-                <p class="text-xs font-bold text-white mb-0.5">${titulo}</p>
-                ${foto.descricao ? `<p class="text-[11px] text-slate-300 mb-1">${foto.descricao}</p>` : ''}
-                <p class="text-[10px] text-slate-400">${foto.autor ? `${foto.autor}` : ''}${foto.data ? ` · ${formatDate(foto.data)}` : ''}</p>
+            // Desktop: Hover exibe apenas o título/tipo do ponto em tooltip limpo
+            marker.bindTooltip(`
+              <div class="px-2 py-1 flex items-center gap-1.5 font-sans">
+                <span class="text-xs">📷</span>
+                <span class="text-white text-xs font-bold">${titulo}</span>
               </div>
-            `);
-          } else {
-            // Mobile: toque dispara BottomSheet
-            marker.on('click', () => {
-              onSelectFotografia?.({ ...foto, url: fullImgUrl || foto.url });
+            `, {
+              sticky: true,
+              direction: 'top',
+              className: 'leaflet-hover-tooltip',
+              offset: [0, -10],
             });
           }
+
+          // Clique (tanto mobile quanto desktop) dispara o formulário/modal centralizado com imagem expandida
+          marker.on('click', () => {
+            onSelectFotografia?.({ ...foto, url: fullImgUrl || foto.url });
+          });
 
           photoLayerGroupRef.current?.addLayer(marker);
         }
@@ -404,6 +378,11 @@ export default function MapComponent({
 
     if (visibleLayers.equipamentos) {
       equipamentos.forEach((eq) => {
+        // Se o equipamento está vinculado a uma praça (id_area != null), ele só aparece se a praça estiver visível
+        if (eq.id_area !== null && eq.id_area !== undefined && !visibleAreaIds.has(eq.id_area)) {
+          return;
+        }
+
         if (eq.lat && eq.lng) {
           const equipIcon = L.divIcon({
             className: 'custom-gis-equip-pin',
@@ -420,38 +399,36 @@ export default function MapComponent({
             iconAnchor: [16, 38],
           });
 
-          const estadoColors: Record<string, string> = { Bom: '#10b981', Regular: '#f59e0b', Ruim: '#ef4444' };
-          const estadoCor = eq.estado ? (estadoColors[eq.estado] || '#94a3b8') : '#94a3b8';
           const cleanUrl = eq.url ? eq.url.replace('/fotos-campo/files/', '/fotos-campo/').replace(/^files\//, '') : undefined;
           const fullImgUrl = cleanUrl ? (cleanUrl.startsWith('http') ? cleanUrl : `https://hhouklrgffoyovnhsmcb.supabase.co/storage/v1/object/public/fotos-campo/${cleanUrl.replace(/^\//, '')}`) : undefined;
           const marker = L.marker([eq.lat, eq.lng], { icon: equipIcon });
 
           if (!isMobile) {
-            // Desktop: popup Leaflet elegante ancorado no marcador
-            marker.bindPopup(`
-              <div class="p-1 max-w-[240px]">
-                ${fullImgUrl ? `<img src="${fullImgUrl}" alt="${eq.tipo}" class="w-full h-28 object-cover rounded-md mb-2 border border-slate-700 shadow-md" onerror="this.style.display='none'" />` : ''}
-                <div class="flex items-center gap-1.5 mb-1">
-                  <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style="background:rgba(245,158,11,0.2);color:#f59e0b;border:1px solid rgba(245,158,11,0.35)">🏋️ Lazer</span>
-                  ${eq.estado ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full" style="color:${estadoCor};background:${estadoCor}22;border:1px solid ${estadoCor}55">${eq.estado}</span>` : ''}
-                </div>
-                <p class="text-xs font-bold text-white mb-1">${eq.tipo}</p>
-                ${eq.observacao ? `<p class="text-[11px] text-slate-300 mb-1">${eq.observacao}</p>` : ''}
-                <p class="text-[10px] text-slate-400">${eq.autor ? `${eq.autor}` : ''}${eq.data ? ` · ${formatDate(eq.data)}` : ''}</p>
+            // Desktop: Hover exibe apenas o título/tipo do equipamento em tooltip limpo
+            marker.bindTooltip(`
+              <div class="px-2 py-1 flex items-center gap-1.5 font-sans">
+                <span class="text-xs">🏋️</span>
+                <span class="text-white text-xs font-bold">${eq.tipo}</span>
               </div>
-            `);
-          } else {
-            // Mobile: toque dispara BottomSheet
-            marker.on('click', () => {
-              onSelectEquipamento?.({ ...eq, url: fullImgUrl || eq.url });
+            `, {
+              sticky: true,
+              direction: 'top',
+              className: 'leaflet-hover-tooltip',
+              offset: [0, -10],
             });
           }
+
+          // Clique (tanto mobile quanto desktop) dispara o formulário/modal centralizado com imagem expandida
+          marker.on('click', () => {
+            onSelectEquipamento?.({ ...eq, url: fullImgUrl || eq.url });
+          });
 
           equipLayerGroupRef.current?.addLayer(marker);
         }
       });
     }
-  }, [fotografias, equipamentos, visibleLayers.fotografias, visibleLayers.equipamentos, onSelectFotografia, onSelectEquipamento]);
+  }, [fotografias, equipamentos, visibleLayers.fotografias, visibleLayers.equipamentos, visibleAreaIds, onSelectFotografia, onSelectEquipamento]);
 
   return <div ref={mapContainerRef} className="w-full h-full absolute inset-0 z-0 bg-slate-950" />;
 }
+
