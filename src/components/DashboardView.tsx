@@ -89,7 +89,7 @@ export default function DashboardView({ stats }: DashboardViewProps) {
               <Layers className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs font-semibold text-slate-400 block">Área Verde Total</span>
+              <span className="text-xs font-semibold text-slate-400 block">Área Total Mapeada</span>
               <span className="text-2xl font-black text-white">{stats.areaTotalHa.toFixed(2)} <span className="text-xs font-normal text-slate-400">ha</span></span>
             </div>
           </div>

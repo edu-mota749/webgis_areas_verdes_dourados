@@ -5021,7 +5021,15 @@ export function calculateStatsFromGeoJSON(data: AreaVerdeGeoJSON): DashboardStat
     };
   }
 
-  const areaTotalHa = Number(features.reduce((acc, f) => acc + (f.properties?.area_ha || 0), 0).toFixed(2));
+  // Soma a área exata em m² e converte para hectares no final (total_m2 / 10.000) para evitar perda por arredondamento intermediário
+  const totalAreaM2 = features.reduce((acc, f) => {
+    const m2 = f.properties?.area_m2;
+    if (typeof m2 === 'number' && m2 > 0) {
+      return acc + m2;
+    }
+    return acc + (f.properties?.area_ha || 0) * 10000;
+  }, 0);
+  const areaTotalHa = Number((totalAreaM2 / 10000).toFixed(2));
   const ndviMedio = Number((features.reduce((acc, f) => acc + (f.properties?.ndvi_med || 0), 0) / totalPracas).toFixed(3));
   const pugsMedio = Number((features.reduce((acc, f) => acc + (f.properties?.pugs || 0), 0) / totalPracas).toFixed(2));
 
