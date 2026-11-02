@@ -5073,13 +5073,13 @@ export function calculateStatsFromGeoJSON(data: AreaVerdeGeoJSON): DashboardStat
   const porTipo = Object.entries(tiposMap).map(([tipo, quantidade]) => ({ tipo, quantidade }));
 
   // 4. Faixas de NDVI
-  const baixa = features.filter(f => (f.properties?.ndvi_med || 0) < 0.20).length;
-  const moderada = features.filter(f => (f.properties?.ndvi_med || 0) >= 0.20 && (f.properties?.ndvi_med || 0) <= 0.35).length;
-  const densa = features.filter(f => (f.properties?.ndvi_med || 0) > 0.35).length;
+  const baixa = features.filter(f => (f.properties?.ndvi_med || 0) < 0.300).length;
+  const moderada = features.filter(f => (f.properties?.ndvi_med || 0) >= 0.300 && (f.properties?.ndvi_med || 0) <= 0.500).length;
+  const densa = features.filter(f => (f.properties?.ndvi_med || 0) > 0.500).length;
   const faixasNdvi = [
-    { faixa: 'Baixa (<0.20)', quantidade: baixa },
-    { faixa: 'Moderada (0.20-0.35)', quantidade: moderada },
-    { faixa: 'Densa (>0.35)', quantidade: densa },
+    { faixa: 'Baixa/esparsa (< 0,300)', quantidade: baixa, fill: '#f59e0b' },
+    { faixa: 'Moderada (0,300–0,500)', quantidade: moderada, fill: '#84cc16' },
+    { faixa: 'Densa (> 0,500)', quantidade: densa, fill: '#10b981' },
   ];
 
   // 5. Conformidade da Permeabilidade (PUGS >= 70%)

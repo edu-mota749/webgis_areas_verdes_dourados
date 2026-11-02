@@ -95,6 +95,7 @@ export interface DashboardStats {
   faixasNdvi: {
     faixa: string;
     quantidade: number;
+    fill?: string;
   }[];
   conformidadePermeab: {
     status: string;

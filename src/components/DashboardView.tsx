@@ -41,9 +41,9 @@ export default function DashboardView({ stats }: DashboardViewProps) {
 
   // 3. Faixas Radiométricas de NDVI
   const ndviFaixasData = stats.faixasNdvi || [
-    { faixa: 'Baixa (<0.20)', quantidade: 0 },
-    { faixa: 'Moderada (0.20-0.35)', quantidade: 0 },
-    { faixa: 'Densa (>0.35)', quantidade: 0 },
+    { faixa: 'Baixa/esparsa (< 0,300)', quantidade: 0, fill: '#f59e0b' },
+    { faixa: 'Moderada (0,300–0,500)', quantidade: 0, fill: '#84cc16' },
+    { faixa: 'Densa (> 0,500)', quantidade: 0, fill: '#10b981' },
   ];
 
   // 4. Conformidade de Permeabilidade
@@ -231,7 +231,7 @@ export default function DashboardView({ stats }: DashboardViewProps) {
               </h3>
             </div>
             <p className="text-xs text-slate-400 mb-4">
-              Distribuição do vigor da biomassa (Baixa: &lt;0.20, Moderada: 0.20–0.35, Densa: &gt;0.35)
+              Distribuição do vigor da biomassa (Baixa/esparsa: &lt; 0,300, Moderada: 0,300–0,500, Densa: &gt; 0,500)
             </p>
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -242,7 +242,11 @@ export default function DashboardView({ stats }: DashboardViewProps) {
                     contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
                     itemStyle={{ color: '#f59e0b' }}
                   />
-                  <Bar dataKey="quantidade" name="Quantidade de Praças" fill="#f59e0b" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="quantidade" name="Quantidade de Praças" radius={[6, 6, 0, 0]}>
+                    {ndviFaixasData.map((entry, index) => (
+                      <Cell key={`cell-ndvi-${index}`} fill={(entry as any).fill || '#f59e0b'} />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>
