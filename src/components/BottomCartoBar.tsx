@@ -21,8 +21,8 @@ export default function BottomCartoBar({ coords, totalFeaturesCount }: BottomCar
         <span className="flex items-center gap-1.5 text-slate-300">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
           <strong className="text-white">{totalFeaturesCount}</strong>
-          <span className="hidden sm:inline">praças em Dourados-MS</span>
-          <span className="sm:hidden">praças</span>
+          <span className="hidden sm:inline">áreas em Dourados-MS</span>
+          <span className="sm:hidden">áreas</span>
         </span>
 
         <span className="text-slate-700">|</span>
@@ -42,10 +42,10 @@ export default function BottomCartoBar({ coords, totalFeaturesCount }: BottomCar
       <div className="flex items-center gap-1.5 text-[10px] text-slate-300">
         <Globe className="w-3.5 h-3.5 text-teal-400 shrink-0" />
         <span className="hidden md:inline">
-          CRS: <strong className="text-teal-300">SIRGAS 2000 / UTM 21S (EPSG:31981)</strong>
+          CRS: <strong className="text-teal-300">WGS 84 (EPSG:4326)</strong>
         </span>
         <span className="md:hidden">
-          <strong className="text-teal-300">EPSG:31981</strong>
+          <strong className="text-teal-300">EPSG:4326</strong>
         </span>
       </div>
     </footer>

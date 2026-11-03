@@ -63,7 +63,7 @@ export default function DashboardView({ stats }: DashboardViewProps) {
               Dashboard Analítico de Inteligência Geográfica
             </h2>
             <p className="text-xs md:text-sm text-slate-400 mt-1">
-              Caracterização e Avaliação Multicritério das Praças Urbanas de Dourados-MS (TCC UFGD)
+              Caracterização e Avaliação Multicritério dos Espaços Públicos de Lazer de Dourados-MS
             </p>
           </div>
           <div className="bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl text-xs text-emerald-400 font-semibold self-start md:self-auto shrink-0 shadow-md flex items-center gap-2">
@@ -79,7 +79,7 @@ export default function DashboardView({ stats }: DashboardViewProps) {
               <Trees className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs font-semibold text-slate-400 block">Total de Praças Mapeadas</span>
+              <span className="text-xs font-semibold text-slate-400 block">Total de Áreas Mapeadas</span>
               <span className="text-2xl font-black text-white">{stats.totalPracas}</span>
             </div>
           </div>
@@ -122,7 +122,7 @@ export default function DashboardView({ stats }: DashboardViewProps) {
             <div className="flex items-center gap-2 mb-1">
               <PieIcon className="w-4 h-4 text-emerald-400" />
               <h3 className="text-sm font-bold text-white">
-                Distribuição por Nível de Qualidade das Praças
+                Distribuição por Nível de Qualidade das Áreas
               </h3>
             </div>
             <p className="text-xs text-slate-400 mb-4">
@@ -170,7 +170,7 @@ export default function DashboardView({ stats }: DashboardViewProps) {
               </h3>
             </div>
             <p className="text-xs text-slate-400 mb-4">
-              Quantidade de praças que cumprem cada função avaliada na metodologia do TCC
+              Quantidade de áreas que cumprem cada função avaliada na metodologia do TCC
             </p>
             <div className="h-72 w-full">
               <ResponsiveContainer width="100%" height="100%">

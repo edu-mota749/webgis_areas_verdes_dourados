@@ -44,11 +44,11 @@ export default function AboutView() {
         <div className="bg-slate-900/90 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
           <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold tracking-widest uppercase">
             <GraduationCap className="w-5 h-5" />
-            Trabalho de Conclusão de Curso • TCC UFGD
+            TCC II • UFGD
           </div>
 
           <h1 className="text-xl md:text-2xl font-black text-white leading-tight">
-            Caracterização de praças urbanas por meio de técnicas de sensoriamento remoto e geoprocessamento em Dourados-MS
+            Caracterização de praças, parques e CEPERs por meio de técnicas de sensoriamento remoto e geoprocessamento em Dourados-MS
           </h1>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-xs text-slate-300 border-t border-slate-800">
@@ -77,28 +77,28 @@ export default function AboutView() {
           </h2>
 
           <p className="text-xs text-slate-300 leading-relaxed">
-            O crescimento urbano acelerado em Dourados-MS exige ferramentas tecnológicas e escaláveis para o monitoramento contínuo de suas praças públicas. A metodologia baseia-se na extração espacial e vetorização das praças em ambiente SIG (software QGIS) e PostGIS, utilizando imagens de satélite de alta resolução e cálculo do índice espectral <strong>NDVI (Normalized Difference Vegetation Index)</strong>.
+            O crescimento urbano acelerado em Dourados-MS exige ferramentas tecnológicas e escaláveis para o monitoramento contínuo de seus espaços públicos de lazer. A metodologia baseia-se na extração espacial e vetorização das áreas em ambiente SIG (software QGIS) e PostGIS, utilizando imagens Sentinel-2 (10 m) e cálculo do índice espectral <strong>NDVI (Normalized Difference Vegetation Index)</strong>.
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-1">
               <span className="text-xs font-bold text-emerald-400">1. Função Ecológica (NDVI)</span>
-              <p className="text-[11px] text-slate-400">Mensura a biomassa e o vigor da vegetação no interior da praça através do infravermelho próximo (NIR) e vermelho (RED).</p>
+              <p className="text-[11px] text-slate-400">Mensura a biomassa e o vigor da vegetação no interior da área através do infravermelho próximo (NIR) e vermelho (RED). Atende quando o NDVI médio é superior a 0,300.</p>
             </div>
 
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-1">
               <span className="text-xs font-bold text-teal-400">2. Taxa de Permeabilidade (PUGS)</span>
-              <p className="text-[11px] text-slate-400">Avalia se a praça atende ao parâmetro mínimo de 70% de superfície permeável e solo não impermeabilizado.</p>
+              <p className="text-[11px] text-slate-400">Avalia se a área atinge PUGS ≥ 70% (cobertura vegetal usada como estimador de solo permeável).</p>
             </div>
 
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-1">
               <span className="text-xs font-bold text-lime-400">3. Função Estética</span>
-              <p className="text-[11px] text-slate-400">Aferida de forma complementar em visitas a campo, considerando qualidade paisagística e visual.</p>
+              <p className="text-[11px] text-slate-400">Atribuída pelos autores por observação direta em campo: limpeza e conservação, paisagismo, elementos naturais e monumentos.</p>
             </div>
 
             <div className="bg-slate-950/60 p-3 rounded-xl border border-slate-800 space-y-1">
               <span className="text-xs font-bold text-cyan-400">4. Função de Lazer</span>
-              <p className="text-[11px] text-slate-400">Verifica a presença de infraestrutura (playground, academia, quadras, bancos e passeios públicos).</p>
+              <p className="text-[11px] text-slate-400">Avalia, em campo, se o espaço oferece condições de uso: equipamentos em bom estado, áreas de estar e sombreamento.</p>
             </div>
           </div>
         </div>

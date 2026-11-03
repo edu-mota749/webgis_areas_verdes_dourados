@@ -173,7 +173,7 @@ export default function SidebarLayers({
                       }
                       className="accent-emerald-500 rounded cursor-pointer"
                     />
-                    <span>Praças & Áreas Verdes</span>
+                    <span>Espaços Públicos de Lazer</span>
                   </label>
 
                   {/* LEGENDA DE QUALIDADE */}
@@ -223,7 +223,7 @@ export default function SidebarLayers({
                         className="accent-red-500 rounded cursor-pointer"
                       />
                       <span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block border border-white/20 shrink-0"></span>
-                      <span>Ruim <strong className="text-slate-400 font-normal">(1/4)</strong></span>
+                      <span>Ruim <strong className="text-slate-400 font-normal">(0–1/4)</strong></span>
                     </label>
                   </div>
                 </div>
